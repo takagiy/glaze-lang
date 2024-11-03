@@ -3,9 +3,9 @@
 * PROGRAM   := toplevels=TOPLEVEL* $
 * TOPLEVEL  := STRUCTDEF
 * STRUCTDEF := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
-*              .fields = FIELD[] { return this.f ? this.f.value : []; }
+*              .fields = FIELD[] { return this.f ? this.f.v : []; }
 * FIELDS    := h=FIELD t={ _ ',' _ v=FIELD}*
-*              .value = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
+*              .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
 * FIELD     := name=IDENTIFIER _ ':' _ type=TYPE
 * TYPE      := name=IDENTIFIER
 * IDENTIFIER:= '[a-zA-Z][a-zA-Z\d_]*'
@@ -44,7 +44,7 @@ export class STRUCTDEF {
         this.name = name;
         this.f = f;
         this.fields = ((): FIELD[] => {
-        return this.f ? this.f.value : [];
+        return this.f ? this.f.v : [];
         })();
     }
 }
@@ -52,11 +52,11 @@ export class FIELDS {
     public kind: ASTKinds.FIELDS = ASTKinds.FIELDS;
     public h: FIELD;
     public t: FIELDS_$0[];
-    public value: FIELD[];
+    public v: FIELD[];
     constructor(h: FIELD, t: FIELDS_$0[]){
         this.h = h;
         this.t = t;
-        this.value = ((): FIELD[] => {
+        this.v = ((): FIELD[] => {
         return [this.h].concat(t.map(e => e.v));
         })();
     }
