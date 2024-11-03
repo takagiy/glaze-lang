@@ -13,6 +13,9 @@
     "enabled": true,
     "indentStyle": "space"
   },
+  "files": {
+    "ignore": ["src/parser.ts"]
+  },
   "vcs": {
     "enabled": true,
     "clientKind": "git",

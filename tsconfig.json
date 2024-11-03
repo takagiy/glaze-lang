@@ -8,6 +8,8 @@
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noUnusedParameters": false,
+    "noUnusedLocals": false
   }
 }
