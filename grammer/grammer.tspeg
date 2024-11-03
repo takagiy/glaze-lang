@@ -2,8 +2,8 @@ PROGRAM   := toplevels=TOPLEVEL* $
 TOPLEVEL  := STRUCTDEF
 STRUCTDEF := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
              .fields = FIELD[] { return this.f ? this.f.value : []; }
-FIELDS    := head=FIELD _ tail={ _ ',' _ value=FIELD}*
-             .value = FIELD[] { return [this.head].concat(tail.map(e => e.value)); }
+FIELDS    := h=FIELD t={ _ ',' _ v=FIELD}*
+             .value = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
 FIELD     := name=IDENTIFIER _ ':' _ type=TYPE
 TYPE      := name=IDENTIFIER
 IDENTIFIER:= '[a-zA-Z][a-zA-Z\d_]*'
