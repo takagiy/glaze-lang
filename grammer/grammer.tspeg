@@ -1,10 +1,22 @@
 PROGRAM   := toplevels=TOPLEVEL* $
-TOPLEVEL  := STRUCTDEF
+TOPLEVEL  := STRUCTDEF | FUNCDEF
 STRUCTDEF := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
              .fields = FIELD[] { return this.f ? this.f.v : []; }
 FIELDS    := h=FIELD t={ _ ',' _ v=FIELD}*
              .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
 FIELD     := name=IDENTIFIER _ ':' _ type=TYPE
+FUNCDEF   := _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
+             .params = FIELD[] { return this.p ? this.p.v : []; }
+             .body = STATEMENT[] { return this.b ? this.b.v : []; }
+BODY      := h=STATEMENT t={_ ';' _ v=STATEMENT}*
+             .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
+STATEMENT := LET_STATEMENT
+LET_STATEMENT := _ 'let' __ name=IDENTIFIER _ '=' _ expr=EXPR
+EXPR      := sum=SUM
+SUM       := h=FAC t={ _ op='\+|-' _ sm=FAC }
+FAC       := h=DOT t={ _ op='\*|/' _ sm=DOT }
+DOT       := h=ATOM t={ _ op='\.' _ sm=ATOM }
+ATOM      := IDENTIFIER
 TYPE      := name=IDENTIFIER
 IDENTIFIER:= '[a-zA-Z][a-zA-Z\d_]*'
 _         := '\s*'

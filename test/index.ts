@@ -1,8 +1,31 @@
 import test from "ava";
 import * as parser from "../src/parser";
+import { Module } from "../src/module";
 
-test("it works", (t) => {
-  t.is(1 + 1, 2);
-  const program = parser.parse("struct Foo { a: i32, b: i32 }");
-  console.dir(program, { depth: null });
+test("struct", (t) => {
+  const ast = parser.parse("struct Foo { a: i32, b: i32 }");
+  t.not(ast.ast, null);
+
+  if (ast.ast === null) {
+    return;
+  }
+
+  const module = Module.fromAst(ast.ast);
+  const wat = module.emitWat();
+
+  t.is(wat, "(module (type $Foo (struct (field $a i32) (field $b i32))))");
+});
+
+test("function", (t) => {
+  const ast = parser.parse("fn foo(a: i32, b: i32) -> i32 {}");
+  t.not(ast.ast, null);
+
+  if (ast.ast === null) {
+    return;
+  }
+
+  const module = Module.fromAst(ast.ast);
+  const wat = module.emitWat();
+
+  t.is(wat, "(module (func $foo (param $a i32) (param $b i32) (result i32)))");
 });
