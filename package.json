@@ -3,48 +3,17 @@
   "name": "@glaze-lang/glaze",
   "version": "1.0.0",
   "description": "",
-  "exports": {
-    ".": {
-      "require": {
-        "types": "./dist/cjs/index.d.ts",
-        "default": "./dist/cjs/index.js"
-      },
-      "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
-      },
-      "default": "./dist/cjs/index.js"
-    },
-    "./*": {
-      "require": {
-        "types": "./dist/cjs/*.d.ts",
-        "default": "./dist/cjs/*.js"
-      },
-      "import": {
-        "types": "./dist/esm/*.d.ts",
-        "default": "./dist/esm/*.js"
-      },
-      "default": "./dist/cjs/*.js"
-    }
-  },
-  "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
-  "module": "dist/esm/index.js",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "publishConfig": {
     "access": "public"
   },
+  "bin": {
+    "glaze": "dist/index.js"
+  },
   "scripts": {
-    "build": "pnpm run build:parser && pnpm run build:types && pnpm run build:js",
+    "build": "pnpm run build:parser && pnpm run build:js",
     "build:parser": "tspeg grammer/grammer.tspeg src/parser.ts --enable-memo",
-    "build:types": "pnpm run build:types:cjs && pnpm run build:types:esm",
-    "build:types:cjs": "tsc --project tsconfig.cjs.json --declaration --emitDeclarationOnly --outDir dist/cjs",
-    "build:types:esm": "tsc --project tsconfig.esm.json --declaration --emitDeclarationOnly --outDir dist/esm",
-    "build:js": "pnpm run build:js:cjs && pnpm run build:js:esm",
-    "build:js:cjs": "swc src --out-dir dist/cjs --strip-leading-paths --config module.type=commonjs && echo '{ \"type\": \"commonjs\" }' > dist/cjs/package.json",
-    "build:js:esm": "swc src --out-dir dist/esm --strip-leading-paths --config module.type=es6 && echo '{ \"type\": \"module\" }' > dist/esm/package.json",
+    "build:js": "rollup -c rollup.config.js",
     "lint": "biome check; status=$?; echo 'Use `pnpm run lint!` to apply the fixes.'; exit $status",
     "lint!": "biome check --write",
     "test": "pnpm run build:parser && pnpm run test:types && ava",
@@ -69,21 +38,17 @@
     "extensions": {
       "ts": "module"
     },
-    "nodeArguments": [
-      "--import=tsimp/import"
-    ],
-    "files": [
-      "test/**/*.ts"
-    ]
+    "nodeArguments": ["--import=tsimp/import"],
+    "files": ["test/**/*.ts"]
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
-    "@swc/cli": "^0.4.0",
+    "@rollup/plugin-swc": "^0.4.0",
     "@swc/core": "^1.6.6",
-    "@tsconfig/node-lts": "^20.1.3",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.14.9",
     "ava": "^6.1.3",
+    "rollup": "^4.27.2",
     "tsimp": "^2.0.12",
     "tspeg": "^3.3.1",
     "typescript": "^5.5.2"
