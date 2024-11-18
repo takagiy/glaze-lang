@@ -67,7 +67,28 @@ export class Module {
     return new Module(structDefinitions, functionDefinitions);
   }
 
-  emitBinary() {
+  emitJs() {
+    const wasm = this.emitBinary();
+    const wasmBuffer = Buffer.from(wasm);
+    const wasmBase64 = wasmBuffer.toString("base64");
+    return `const wasmBase64 = "${wasmBase64}"
+const wasmBuffer = Buffer.from(wasmBase64, "base64");
+const module = await WebAssembly.instantiate(wasmBuffer);
+${this.emitJsExports()}
+`;
+  }
+
+  emitJsExports() {
+    const exports = this.functionDefinitions
+      .filter((f) => f.isPublic)
+      .map((f) => f.name);
+    if (exports.length === 0) {
+      return "";
+    }
+    return `export const { ${exports.join(", ")} } = module.instance.exports;`;
+  }
+
+  emitBinary(): Uint8Array {
     const module = binaryen.parseText(this.emitWat());
     module.optimize();
     module.validate();
