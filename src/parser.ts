@@ -7,9 +7,11 @@
 * FIELDS     := h=FIELD t={ _ ',' _ v=FIELD}*
 *               .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
 * FIELD      := name=IDENTIFIER _ ':' _ type=TYPE
-* FUNCDEF    := _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
+* FUNCDEF    := _ v=VISIBILITY? _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
 *               .params = FIELD[] { return this.p ? this.p.v : []; }
 *               .body = STATEMENT[] { return this.b ? this.b.v : []; }
+*               .isPublic = boolean { return Boolean(this.v); }
+* VISIBILITY := 'pub'
 * BODY       := h=STATEMENT _ ';' _ t={v=STATEMENT _ ';' _}*
 *               .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
 * STATEMENT  := LET | RETURN
@@ -49,6 +51,7 @@ export enum ASTKinds {
     FIELDS_$0 = "FIELDS_$0",
     FIELD = "FIELD",
     FUNCDEF = "FUNCDEF",
+    VISIBILITY = "VISIBILITY",
     BODY = "BODY",
     BODY_$0 = "BODY_$0",
     STATEMENT_1 = "STATEMENT_1",
@@ -114,13 +117,16 @@ export interface FIELD {
 }
 export class FUNCDEF {
     public kind: ASTKinds.FUNCDEF = ASTKinds.FUNCDEF;
+    public v: Nullable<VISIBILITY>;
     public name: IDENTIFIER;
     public p: Nullable<FIELDS>;
     public returnType: TYPE;
     public b: Nullable<BODY>;
     public params: FIELD[];
     public body: STATEMENT[];
-    constructor(name: IDENTIFIER, p: Nullable<FIELDS>, returnType: TYPE, b: Nullable<BODY>){
+    public isPublic: boolean;
+    constructor(v: Nullable<VISIBILITY>, name: IDENTIFIER, p: Nullable<FIELDS>, returnType: TYPE, b: Nullable<BODY>){
+        this.v = v;
         this.name = name;
         this.p = p;
         this.returnType = returnType;
@@ -131,8 +137,12 @@ export class FUNCDEF {
         this.body = ((): STATEMENT[] => {
         return this.b ? this.b.v : [];
         })();
+        this.isPublic = ((): boolean => {
+        return Boolean(this.v);
+        })();
     }
 }
+export type VISIBILITY = string;
 export class BODY {
     public kind: ASTKinds.BODY = ASTKinds.BODY;
     public h: STATEMENT;
@@ -385,12 +395,15 @@ export class Parser {
     public matchFUNCDEF($$dpth: number, $$cr?: ErrorTracker): Nullable<FUNCDEF> {
         return this.run<FUNCDEF>($$dpth,
             () => {
+                let $scope$v: Nullable<Nullable<VISIBILITY>>;
                 let $scope$name: Nullable<IDENTIFIER>;
                 let $scope$p: Nullable<Nullable<FIELDS>>;
                 let $scope$returnType: Nullable<TYPE>;
                 let $scope$b: Nullable<Nullable<BODY>>;
                 let $$res: Nullable<FUNCDEF> = null;
                 if (true
+                    && this.match_($$dpth + 1, $$cr) !== null
+                    && (($scope$v = this.matchVISIBILITY($$dpth + 1, $$cr)) || true)
                     && this.match_($$dpth + 1, $$cr) !== null
                     && this.regexAccept(String.raw`(?:fn)`, "", $$dpth + 1, $$cr) !== null
                     && this.match__($$dpth + 1, $$cr) !== null
@@ -413,10 +426,13 @@ export class Parser {
                     && this.regexAccept(String.raw`(?:})`, "", $$dpth + 1, $$cr) !== null
                     && this.match_($$dpth + 1, $$cr) !== null
                 ) {
-                    $$res = new FUNCDEF($scope$name, $scope$p, $scope$returnType, $scope$b);
+                    $$res = new FUNCDEF($scope$v, $scope$name, $scope$p, $scope$returnType, $scope$b);
                 }
                 return $$res;
             });
+    }
+    public matchVISIBILITY($$dpth: number, $$cr?: ErrorTracker): Nullable<VISIBILITY> {
+        return this.regexAccept(String.raw`(?:pub)`, "", $$dpth + 1, $$cr);
     }
     public matchBODY($$dpth: number, $$cr?: ErrorTracker): Nullable<BODY> {
         return this.run<BODY>($$dpth,

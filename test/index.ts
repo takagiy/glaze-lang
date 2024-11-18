@@ -40,3 +40,26 @@ test("function", (t) => {
 
   module.emitBinary();
 });
+
+test("public function", (t) => {
+  const ast = parser.parse(
+    "pub fn foo(a: i32, b: i32) -> i32 { let c = a + b; return c; }",
+  );
+  t.not(ast.ast, null);
+
+  if (ast.ast === null) {
+    return;
+  }
+
+  console.dir(ast.ast, { depth: null });
+
+  const module = Module.fromAst(ast.ast);
+  const wat = module.emitWat();
+
+  t.is(
+    wat,
+    '(module (func $foo (param $a i32) (param $b i32) (result i32) (local $c i32) (local.set $c (i32.add (local.get $a) (local.get $b))) (return (local.get $c))) (export "foo" (func $foo)))',
+  );
+
+  module.emitBinary();
+});

@@ -25,6 +25,7 @@ export class FieldDefinition {
 
 export class FunctionDefinition {
   constructor(
+    public isPublic: boolean,
     public name: string,
     public parameters: ParameterDefinition[],
     public returnType: string,
@@ -55,6 +56,7 @@ export class Module {
     const functionDefinitions = ast.toplevels
       .filter((d) => d.kind === ASTKinds.FUNCDEF)
       .map((d) => ({
+        isPublic: d.isPublic,
         name: d.name,
         parameters: d.params.map(
           (p) => new ParameterDefinition(p.name, p.type.name),
@@ -81,6 +83,7 @@ export class Module {
       "module",
       ...this.emitTypes(),
       ...this.emitFunctions(),
+      ...this.emitExports(),
       ...this.emitStart(),
     ];
   }
@@ -102,6 +105,12 @@ export class Module {
       ...f.body.flatMap(emitLocals),
       ...f.body.map(emitStatement),
     ]);
+  }
+
+  emitExports() {
+    return this.functionDefinitions
+      .filter((f) => f.isPublic)
+      .map((f) => ["export", `"${f.name}"`, ["func", `$${f.name}`]]);
   }
 
   emitStart() {

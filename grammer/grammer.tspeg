@@ -5,9 +5,11 @@ STRUCTDEF  := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
 FIELDS     := h=FIELD t={ _ ',' _ v=FIELD}*
               .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
 FIELD      := name=IDENTIFIER _ ':' _ type=TYPE
-FUNCDEF    := _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
+FUNCDEF    := _ v=VISIBILITY? _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
               .params = FIELD[] { return this.p ? this.p.v : []; }
               .body = STATEMENT[] { return this.b ? this.b.v : []; }
+              .isPublic = boolean { return Boolean(this.v); }
+VISIBILITY := 'pub'
 BODY       := h=STATEMENT _ ';' _ t={v=STATEMENT _ ';' _}*
               .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
 STATEMENT  := LET | RETURN
