@@ -1,19 +1,26 @@
+import binaryen from "binaryen";
 import {
   ASTKinds,
   type STATEMENT,
   type PROGRAM,
-  SUM,
-  FAC,
-  DOT,
-  VARREF,
+  type SUM,
+  type FAC,
+  type DOT,
+  type VARREF,
 } from "./parser";
 
 export class StructDefinition {
-  constructor(public name: string, public fields: FieldDefinition[]) {}
+  constructor(
+    public name: string,
+    public fields: FieldDefinition[],
+  ) {}
 }
 
 export class FieldDefinition {
-  constructor(public name: string, public type: string) {}
+  constructor(
+    public name: string,
+    public type: string,
+  ) {}
 }
 
 export class FunctionDefinition {
@@ -21,18 +28,21 @@ export class FunctionDefinition {
     public name: string,
     public parameters: ParameterDefinition[],
     public returnType: string,
-    public body: STATEMENT[]
+    public body: STATEMENT[],
   ) {}
 }
 
 export class ParameterDefinition {
-  constructor(public name: string, public type: string) {}
+  constructor(
+    public name: string,
+    public type: string,
+  ) {}
 }
 
 export class Module {
   constructor(
     public structDefinitions: StructDefinition[],
-    public functionDefinitions: FunctionDefinition[]
+    public functionDefinitions: FunctionDefinition[],
   ) {}
 
   static fromAst(ast: PROGRAM): Module {
@@ -47,12 +57,19 @@ export class Module {
       .map((d) => ({
         name: d.name,
         parameters: d.params.map(
-          (p) => new ParameterDefinition(p.name, p.type.name)
+          (p) => new ParameterDefinition(p.name, p.type.name),
         ),
         returnType: d.returnType.name,
         body: d.body,
       }));
     return new Module(structDefinitions, functionDefinitions);
+  }
+
+  emitBinary() {
+    const module = binaryen.parseText(this.emitWat());
+    module.optimize();
+    module.validate();
+    return module.emitBinary();
   }
 
   emitWat() {
@@ -126,7 +143,7 @@ function emitExpression(expr: SUM | FAC | DOT | VARREF): SExprArray {
   if (expr.kind === ASTKinds.DOT) {
     return expr.accessors.reduce<SExprArray>(
       (acc, a) => ["struct.get", acc, `$${a}`],
-      emitExpression(expr.receiver)
+      emitExpression(expr.receiver),
     );
   }
   if (expr.kind === ASTKinds.VARREF) {

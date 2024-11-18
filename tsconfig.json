@@ -1,15 +1,18 @@
 {
-  "extends": ["@tsconfig/strictest/tsconfig.json"],
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "moduleResolution": "Node",
+    "module": "ESNext",
     "target": "ES2018",
     "declaration": true,
     "skipLibCheck": true,
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "noUnusedParameters": false,
     "noUnusedLocals": false
-  }
+  },
 }
