@@ -77,7 +77,12 @@ export class Module {
   }
 
   emit() {
-    return ["module", ...this.emitTypes(), ...this.emitFunctions()];
+    return [
+      "module",
+      ...this.emitTypes(),
+      ...this.emitFunctions(),
+      ...this.emitStart(),
+    ];
   }
 
   emitTypes() {
@@ -97,6 +102,13 @@ export class Module {
       ...f.body.flatMap(emitLocals),
       ...f.body.map(emitStatement),
     ]);
+  }
+
+  emitStart() {
+    if (this.functionDefinitions.some((f) => f.name === "main")) {
+      return ["start", "$main"];
+    }
+    return [];
   }
 }
 

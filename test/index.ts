@@ -14,6 +14,8 @@ test("struct", (t) => {
   const wat = module.emitWat();
 
   t.is(wat, "(module (type $Foo (struct (field $a i32) (field $b i32))))");
+
+  module.emitBinary();
 });
 
 test("function", (t) => {
@@ -35,4 +37,6 @@ test("function", (t) => {
     wat,
     "(module (func $foo (param $a i32) (param $b i32) (result i32) (local $c i32) (local.set $c (i32.add (local.get $a) (local.get $b))) (return (local.get $c))))",
   );
+
+  module.emitBinary();
 });
