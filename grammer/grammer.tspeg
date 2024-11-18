@@ -1,23 +1,34 @@
-PROGRAM   := toplevels=TOPLEVEL* $
-TOPLEVEL  := STRUCTDEF | FUNCDEF
-STRUCTDEF := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
-             .fields = FIELD[] { return this.f ? this.f.v : []; }
-FIELDS    := h=FIELD t={ _ ',' _ v=FIELD}*
-             .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
-FIELD     := name=IDENTIFIER _ ':' _ type=TYPE
-FUNCDEF   := _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
-             .params = FIELD[] { return this.p ? this.p.v : []; }
-             .body = STATEMENT[] { return this.b ? this.b.v : []; }
-BODY      := h=STATEMENT t={_ ';' _ v=STATEMENT}*
-             .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
-STATEMENT := LET_STATEMENT
-LET_STATEMENT := _ 'let' __ name=IDENTIFIER _ '=' _ expr=EXPR
-EXPR      := sum=SUM
-SUM       := h=FAC t={ _ op='\+|-' _ sm=FAC }
-FAC       := h=DOT t={ _ op='\*|/' _ sm=DOT }
-DOT       := h=ATOM t={ _ op='\.' _ sm=ATOM }
-ATOM      := IDENTIFIER
-TYPE      := name=IDENTIFIER
-IDENTIFIER:= '[a-zA-Z][a-zA-Z\d_]*'
-_         := '\s*'
-__        := '\s+'
+PROGRAM    := toplevels=TOPLEVEL* $
+TOPLEVEL   := STRUCTDEF | FUNCDEF
+STRUCTDEF  := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
+              .fields = FIELD[] { return this.f ? this.f.v : []; }
+FIELDS     := h=FIELD t={ _ ',' _ v=FIELD}*
+              .v = FIELD[] { return [this.h].concat(t.map(e => e.v)); }
+FIELD      := name=IDENTIFIER _ ':' _ type=TYPE
+FUNCDEF    := _ 'fn' __ name=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ '{' _ b=BODY? _ '}' _
+              .params = FIELD[] { return this.p ? this.p.v : []; }
+              .body = STATEMENT[] { return this.b ? this.b.v : []; }
+BODY       := h=STATEMENT _ ';' _ t={v=STATEMENT _ ';' _}*
+              .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
+STATEMENT  := LET | RETURN
+LET        := _ 'let' __ name=IDENTIFIER _ '=' _ e=EXPR
+              .expr = SUM | FAC | DOT | ATOM { return this.e.v; }
+EXPR       := s=SUM
+              .v = SUM | FAC | DOT | ATOM { return this.s.fac || this.s; }
+SUM        := h=FAC t={ _ op='\+|-' _ v=FAC }*
+              .operands = (FAC | DOT | ATOM)[] { return [this.h.dot || this.h].concat(t.map(e => e.v.dot || e.v)); }
+              .fac = FAC | DOT | ATOM | undefined { return this.operands.length === 1 ? this.h.dot || this.h : undefined; }
+FAC        := h=DOT t={ _ op='\*|/' _ v=DOT }*
+              .operands = (DOT | ATOM)[] { return [this.h.atom || this.h].concat(t.map(e => e.v.atom || e.v)); }
+              .dot = DOT | ATOM | undefined { return this.operands.length === 1 ? this.h.atom || this.h : undefined; }
+DOT        := receiver=ATOM a={ _ op='\.' _ v=IDENTIFIER }*
+              .accessors = string[] { return this.a.map(e => e.v); }
+              .atom = ATOM | undefined { return this.accessors.length === 0 ? this.receiver : undefined; }
+ATOM       := VARREF
+VARREF     := name=IDENTIFIER
+RETURN     := _ 'return' _ e=EXPR
+              .expr = SUM | FAC | DOT | ATOM { return this.e.v; }
+TYPE       := name=IDENTIFIER
+IDENTIFIER := '[a-zA-Z][a-zA-Z\d_]*'
+_          := '\s*'
+__         := '\s+'

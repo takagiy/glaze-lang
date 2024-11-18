@@ -1,17 +1,19 @@
-import { ASTKinds, type PROGRAM } from "./parser";
+import {
+  ASTKinds,
+  type STATEMENT,
+  type PROGRAM,
+  SUM,
+  FAC,
+  DOT,
+  VARREF,
+} from "./parser";
 
 export class StructDefinition {
-  constructor(
-    public name: string,
-    public fields: FieldDefinition[],
-  ) {}
+  constructor(public name: string, public fields: FieldDefinition[]) {}
 }
 
 export class FieldDefinition {
-  constructor(
-    public name: string,
-    public type: string,
-  ) {}
+  constructor(public name: string, public type: string) {}
 }
 
 export class FunctionDefinition {
@@ -19,20 +21,18 @@ export class FunctionDefinition {
     public name: string,
     public parameters: ParameterDefinition[],
     public returnType: string,
+    public body: STATEMENT[]
   ) {}
 }
 
 export class ParameterDefinition {
-  constructor(
-    public name: string,
-    public type: string,
-  ) {}
+  constructor(public name: string, public type: string) {}
 }
 
 export class Module {
   constructor(
     public structDefinitions: StructDefinition[],
-    public functionDefinitions: FunctionDefinition[],
+    public functionDefinitions: FunctionDefinition[]
   ) {}
 
   static fromAst(ast: PROGRAM): Module {
@@ -47,9 +47,10 @@ export class Module {
       .map((d) => ({
         name: d.name,
         parameters: d.params.map(
-          (p) => new ParameterDefinition(p.name, p.type.name),
+          (p) => new ParameterDefinition(p.name, p.type.name)
         ),
         returnType: d.returnType.name,
+        body: d.body,
       }));
     return new Module(structDefinitions, functionDefinitions);
   }
@@ -76,6 +77,8 @@ export class Module {
       `$${f.name}`,
       ...f.parameters.map((p) => ["param", `$${p.name}`, p.type]),
       ["result", f.returnType],
+      ...f.body.flatMap(emitLocals),
+      ...f.body.map(emitStatement),
     ]);
   }
 }
@@ -87,4 +90,47 @@ function sExprToString(sExpr: SExprArray): string {
     return `(${sExpr.map(sExprToString).join(" ")})`;
   }
   return sExpr;
+}
+
+function emitLocals(statement: STATEMENT): SExprArray[] {
+  if (statement.kind === ASTKinds.LET) {
+    return [["local", `$${statement.name}`, "i32"]];
+  }
+  return [];
+}
+
+function emitStatement(statement: STATEMENT): SExprArray {
+  switch (statement.kind) {
+    case ASTKinds.LET:
+      return [
+        "local.set",
+        `$${statement.name}`,
+        emitExpression(statement.expr),
+      ];
+    case ASTKinds.RETURN:
+      return ["return", emitExpression(statement.expr)];
+  }
+}
+
+function emitExpression(expr: SUM | FAC | DOT | VARREF): SExprArray {
+  if (expr.kind === ASTKinds.SUM) {
+    return expr.operands
+      .map(emitExpression)
+      .reduce((acc, e) => ["i32.add", acc, e]);
+  }
+  if (expr.kind === ASTKinds.FAC) {
+    return expr.operands
+      .map(emitExpression)
+      .reduce((acc, e) => ["i32.mul", acc, e]);
+  }
+  if (expr.kind === ASTKinds.DOT) {
+    return expr.accessors.reduce<SExprArray>(
+      (acc, a) => ["struct.get", acc, `$${a}`],
+      emitExpression(expr.receiver)
+    );
+  }
+  if (expr.kind === ASTKinds.VARREF) {
+    return ["local.get", `$${expr.name}`];
+  }
+  throw new Error("Unknown expression kind");
 }
