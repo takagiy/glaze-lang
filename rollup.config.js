@@ -1,4 +1,6 @@
 import swc from "@rollup/plugin-swc";
+import commonjs from "@rollup/plugin-commonjs";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { defineConfig } from "rollup";
 import fs from "node:fs";
 
@@ -6,20 +8,14 @@ export default defineConfig({
   input: "src/index.ts",
   output: {
     file: "dist/index.js",
-    format: "cjs",
+    format: "es",
   },
   plugins: [
-    swc({
-      swc: {
-        minify: true,
-        jsc: {
-          minify: {
-            mangle: true,
-            compress: true,
-          },
-        },
-      },
+    commonjs(),
+    nodeResolve({
+      extensions: [".js", ".ts"],
     }),
+    swc(),
     {
       name: "shebang",
       renderChunk(code) {
@@ -28,7 +24,7 @@ export default defineConfig({
     },
     {
       name: "chmod",
-      generateBundle(bundle) {
+      writeBundle(bundle) {
         fs.chmodSync(bundle.file || "", "755");
       },
     },
