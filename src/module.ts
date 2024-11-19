@@ -7,6 +7,8 @@ import {
   type FAC,
   type DOT,
   type VARREF,
+  type CALL,
+  type ATOM,
 } from "./parser";
 
 export class StructDefinition {
@@ -160,7 +162,7 @@ module.exports = instance.exports;
       "func",
       `$${f.name}`,
       ...f.parameters.map((p) => ["param", `$${p.name}`, p.type]),
-      ["result", f.returnType],
+      ...(f.returnType === "unit" ? [] : [["result", f.returnType]]),
       ...f.body.flatMap(emitLocals),
       ...f.body.map(emitStatement),
     ]);
@@ -174,7 +176,7 @@ module.exports = instance.exports;
 
   emitStart() {
     if (this.functionDefinitions.some((f) => f.name === "main")) {
-      return ["start", "$main"];
+      return [["start", "$main"]];
     }
     return [];
   }
@@ -206,10 +208,12 @@ function emitStatement(statement: STATEMENT): SExprArray {
       ];
     case ASTKinds.RETURN:
       return ["return", emitExpression(statement.expr)];
+    case ASTKinds.CALL:
+      return emitExpression(statement);
   }
 }
 
-function emitExpression(expr: SUM | FAC | DOT | VARREF): SExprArray {
+function emitExpression(expr: SUM | FAC | DOT | CALL | ATOM): SExprArray {
   if (expr.kind === ASTKinds.SUM) {
     return expr.operands
       .map(emitExpression)
@@ -220,6 +224,22 @@ function emitExpression(expr: SUM | FAC | DOT | VARREF): SExprArray {
       .map(emitExpression)
       .reduce((acc, e) => ["i32.mul", acc, e]);
   }
+  if (expr.kind === ASTKinds.CALL) {
+    if (expr.callee.kind !== ASTKinds.VARREF) {
+      throw new Error("Unknown callee kind");
+    }
+    if (expr.args[0] === undefined) {
+      throw new Error("No call");
+    }
+    if (expr.args.length > 1) {
+      throw new Error("Multiple call not supported");
+    }
+    return [
+      "call",
+      `$${expr.callee.name}`,
+      ...expr.args[0].map(emitExpression),
+    ];
+  }
   if (expr.kind === ASTKinds.DOT) {
     return expr.accessors.reduce<SExprArray>(
       (acc, a) => ["struct.get", acc, `$${a}`],
@@ -228,6 +248,9 @@ function emitExpression(expr: SUM | FAC | DOT | VARREF): SExprArray {
   }
   if (expr.kind === ASTKinds.VARREF) {
     return ["local.get", `$${expr.name}`];
+  }
+  if (expr.kind === ASTKinds.INTCONST) {
+    return ["i32.const", expr.value.toString()];
   }
   throw new Error("Unknown expression kind");
 }

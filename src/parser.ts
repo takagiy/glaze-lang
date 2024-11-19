@@ -14,24 +14,32 @@
 * VISIBILITY := 'pub'
 * BODY       := h=STATEMENT _ ';' _ t={v=STATEMENT _ ';' _}*
 *               .v = STATEMENT[] { return [this.h].concat(t.map(e => e.v)); }
-* STATEMENT  := LET | RETURN
+* STATEMENT  := LET | RETURN | CALL
 * LET        := _ 'let' __ name=IDENTIFIER _ '=' _ e=EXPR
-*               .expr = SUM | FAC | DOT | ATOM { return this.e.v; }
+*               .expr = SUM | FAC | CALL | DOT | ATOM { return this.e.v; }
 * EXPR       := s=SUM
-*               .v = SUM | FAC | DOT | ATOM { return this.s.fac || this.s; }
+*               .v = SUM | FAC | CALL | DOT | ATOM { return this.s.fac || this.s; }
 * SUM        := h=FAC t={ _ op='\+|-' _ v=FAC }*
-*               .operands = (FAC | DOT | ATOM)[] { return [this.h.dot || this.h].concat(t.map(e => e.v.dot || e.v)); }
-*               .fac = FAC | DOT | ATOM | undefined { return this.operands.length === 1 ? this.h.dot || this.h : undefined; }
-* FAC        := h=DOT t={ _ op='\*|/' _ v=DOT }*
-*               .operands = (DOT | ATOM)[] { return [this.h.atom || this.h].concat(t.map(e => e.v.atom || e.v)); }
-*               .dot = DOT | ATOM | undefined { return this.operands.length === 1 ? this.h.atom || this.h : undefined; }
+*               .operands = (FAC | CALL | DOT | ATOM)[] { return [this.h.call || this.h].concat(t.map(e => e.v.call || e.v)); }
+*               .fac = FAC | CALL | DOT | ATOM | undefined { return this.operands.length === 1 ? this.operands[0] : undefined; }
+* FAC        := h=CALL t={ _ op='\*|/' _ v=CALL }*
+*               .operands = (CALL | DOT | ATOM)[] { return [this.h.dot || this.h].concat(t.map(e => e.v.dot || e.v)); }
+*               .call = CALL | DOT | ATOM | undefined { return this.operands.length === 1 ? this.operands[0] : undefined; }
+* CALL       := h=DOT t={_ '\(' _ args=ARGS? _ '\)' _}*
+*               .callee = DOT | ATOM { return this.h.atom || this.h; }
+*               .args = (SUM | FAC | CALL | DOT | ATOM)[][] { return this.t.map(e => e.args ? e.args.v : []); }
+*               .dot = DOT | ATOM | undefined { return this.args.length === 0 ? this.callee : undefined; }
+* ARGS       := h=EXPR t={_ ',' _ v=EXPR }*
+*               .v = (SUM | FAC | CALL | DOT | ATOM)[] { return [this.h.v].concat(t.map(e => e.v.v)); }
 * DOT        := receiver=ATOM a={ _ op='\.' _ v=IDENTIFIER }*
 *               .accessors = string[] { return this.a.map(e => e.v); }
 *               .atom = ATOM | undefined { return this.accessors.length === 0 ? this.receiver : undefined; }
-* ATOM       := VARREF
+* ATOM       := VARREF | INTCONST
 * VARREF     := name=IDENTIFIER
+* INTCONST   := s='[\-\+]?\d+'
+*               .value = number { return parseInt(this.s); }
 * RETURN     := _ 'return' _ e=EXPR
-*               .expr = SUM | FAC | DOT | ATOM { return this.e.v; }
+*               .expr = SUM | FAC | CALL | DOT | ATOM { return this.e.v; }
 * EXTERNFUNC := _ 'import' __ externalName=EXTNAME _ 'as' __ 'fn' _ importName=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ ';' _
 *               .params = FIELD[] { return this.p ? this.p.v : []; }
 * EXTNAME    := '[a-zA-Z][a-zA-Z\d_]*(\.[a-zA-Z][a-zA-Z\d_]*)*'
@@ -60,16 +68,23 @@ export enum ASTKinds {
     BODY_$0 = "BODY_$0",
     STATEMENT_1 = "STATEMENT_1",
     STATEMENT_2 = "STATEMENT_2",
+    STATEMENT_3 = "STATEMENT_3",
     LET = "LET",
     EXPR = "EXPR",
     SUM = "SUM",
     SUM_$0 = "SUM_$0",
     FAC = "FAC",
     FAC_$0 = "FAC_$0",
+    CALL = "CALL",
+    CALL_$0 = "CALL_$0",
+    ARGS = "ARGS",
+    ARGS_$0 = "ARGS_$0",
     DOT = "DOT",
     DOT_$0 = "DOT_$0",
-    ATOM = "ATOM",
+    ATOM_1 = "ATOM_1",
+    ATOM_2 = "ATOM_2",
     VARREF = "VARREF",
+    INTCONST = "INTCONST",
     RETURN = "RETURN",
     EXTERNFUNC = "EXTERNFUNC",
     EXTNAME = "EXTNAME",
@@ -167,18 +182,19 @@ export interface BODY_$0 {
     kind: ASTKinds.BODY_$0;
     v: STATEMENT;
 }
-export type STATEMENT = STATEMENT_1 | STATEMENT_2;
+export type STATEMENT = STATEMENT_1 | STATEMENT_2 | STATEMENT_3;
 export type STATEMENT_1 = LET;
 export type STATEMENT_2 = RETURN;
+export type STATEMENT_3 = CALL;
 export class LET {
     public kind: ASTKinds.LET = ASTKinds.LET;
     public name: IDENTIFIER;
     public e: EXPR;
-    public expr: SUM | FAC | DOT | ATOM;
+    public expr: SUM | FAC | CALL | DOT | ATOM;
     constructor(name: IDENTIFIER, e: EXPR){
         this.name = name;
         this.e = e;
-        this.expr = ((): SUM | FAC | DOT | ATOM => {
+        this.expr = ((): SUM | FAC | CALL | DOT | ATOM => {
         return this.e.v;
         })();
     }
@@ -186,10 +202,10 @@ export class LET {
 export class EXPR {
     public kind: ASTKinds.EXPR = ASTKinds.EXPR;
     public s: SUM;
-    public v: SUM | FAC | DOT | ATOM;
+    public v: SUM | FAC | CALL | DOT | ATOM;
     constructor(s: SUM){
         this.s = s;
-        this.v = ((): SUM | FAC | DOT | ATOM => {
+        this.v = ((): SUM | FAC | CALL | DOT | ATOM => {
         return this.s.fac || this.s;
         })();
     }
@@ -198,16 +214,16 @@ export class SUM {
     public kind: ASTKinds.SUM = ASTKinds.SUM;
     public h: FAC;
     public t: SUM_$0[];
-    public operands: (FAC | DOT | ATOM)[];
-    public fac: FAC | DOT | ATOM | undefined;
+    public operands: (FAC | CALL | DOT | ATOM)[];
+    public fac: FAC | CALL | DOT | ATOM | undefined;
     constructor(h: FAC, t: SUM_$0[]){
         this.h = h;
         this.t = t;
-        this.operands = ((): (FAC | DOT | ATOM)[] => {
-        return [this.h.dot || this.h].concat(t.map(e => e.v.dot || e.v));
+        this.operands = ((): (FAC | CALL | DOT | ATOM)[] => {
+        return [this.h.call || this.h].concat(t.map(e => e.v.call || e.v));
         })();
-        this.fac = ((): FAC | DOT | ATOM | undefined => {
-        return this.operands.length === 1 ? this.h.dot || this.h : undefined;
+        this.fac = ((): FAC | CALL | DOT | ATOM | undefined => {
+        return this.operands.length === 1 ? this.operands[0] : undefined;
         })();
     }
 }
@@ -218,25 +234,67 @@ export interface SUM_$0 {
 }
 export class FAC {
     public kind: ASTKinds.FAC = ASTKinds.FAC;
-    public h: DOT;
+    public h: CALL;
     public t: FAC_$0[];
-    public operands: (DOT | ATOM)[];
-    public dot: DOT | ATOM | undefined;
-    constructor(h: DOT, t: FAC_$0[]){
+    public operands: (CALL | DOT | ATOM)[];
+    public call: CALL | DOT | ATOM | undefined;
+    constructor(h: CALL, t: FAC_$0[]){
         this.h = h;
         this.t = t;
-        this.operands = ((): (DOT | ATOM)[] => {
-        return [this.h.atom || this.h].concat(t.map(e => e.v.atom || e.v));
+        this.operands = ((): (CALL | DOT | ATOM)[] => {
+        return [this.h.dot || this.h].concat(t.map(e => e.v.dot || e.v));
         })();
-        this.dot = ((): DOT | ATOM | undefined => {
-        return this.operands.length === 1 ? this.h.atom || this.h : undefined;
+        this.call = ((): CALL | DOT | ATOM | undefined => {
+        return this.operands.length === 1 ? this.operands[0] : undefined;
         })();
     }
 }
 export interface FAC_$0 {
     kind: ASTKinds.FAC_$0;
     op: string;
-    v: DOT;
+    v: CALL;
+}
+export class CALL {
+    public kind: ASTKinds.CALL = ASTKinds.CALL;
+    public h: DOT;
+    public t: CALL_$0[];
+    public callee: DOT | ATOM;
+    public args: (SUM | FAC | CALL | DOT | ATOM)[][];
+    public dot: DOT | ATOM | undefined;
+    constructor(h: DOT, t: CALL_$0[]){
+        this.h = h;
+        this.t = t;
+        this.callee = ((): DOT | ATOM => {
+        return this.h.atom || this.h;
+        })();
+        this.args = ((): (SUM | FAC | CALL | DOT | ATOM)[][] => {
+        return this.t.map(e => e.args ? e.args.v : []);
+        })();
+        this.dot = ((): DOT | ATOM | undefined => {
+        return this.args.length === 0 ? this.callee : undefined;
+        })();
+    }
+}
+export interface CALL_$0 {
+    kind: ASTKinds.CALL_$0;
+    args: Nullable<ARGS>;
+}
+export class ARGS {
+    public kind: ASTKinds.ARGS = ASTKinds.ARGS;
+    public h: EXPR;
+    public t: ARGS_$0[];
+    public v: (SUM | FAC | CALL | DOT | ATOM)[];
+    constructor(h: EXPR, t: ARGS_$0[]){
+        this.h = h;
+        this.t = t;
+        this.v = ((): (SUM | FAC | CALL | DOT | ATOM)[] => {
+        return [this.h.v].concat(t.map(e => e.v.v));
+        })();
+    }
+}
+export interface ARGS_$0 {
+    kind: ASTKinds.ARGS_$0;
+    v: EXPR;
 }
 export class DOT {
     public kind: ASTKinds.DOT = ASTKinds.DOT;
@@ -260,18 +318,31 @@ export interface DOT_$0 {
     op: string;
     v: IDENTIFIER;
 }
-export type ATOM = VARREF;
+export type ATOM = ATOM_1 | ATOM_2;
+export type ATOM_1 = VARREF;
+export type ATOM_2 = INTCONST;
 export interface VARREF {
     kind: ASTKinds.VARREF;
     name: IDENTIFIER;
 }
+export class INTCONST {
+    public kind: ASTKinds.INTCONST = ASTKinds.INTCONST;
+    public s: string;
+    public value: number;
+    constructor(s: string){
+        this.s = s;
+        this.value = ((): number => {
+        return parseInt(this.s);
+        })();
+    }
+}
 export class RETURN {
     public kind: ASTKinds.RETURN = ASTKinds.RETURN;
     public e: EXPR;
-    public expr: SUM | FAC | DOT | ATOM;
+    public expr: SUM | FAC | CALL | DOT | ATOM;
     constructor(e: EXPR){
         this.e = e;
-        this.expr = ((): SUM | FAC | DOT | ATOM => {
+        this.expr = ((): SUM | FAC | CALL | DOT | ATOM => {
         return this.e.v;
         })();
     }
@@ -334,10 +405,15 @@ export class Parser {
         this.$scope$SUM_$0$memo.clear();
         this.$scope$FAC$memo.clear();
         this.$scope$FAC_$0$memo.clear();
+        this.$scope$CALL$memo.clear();
+        this.$scope$CALL_$0$memo.clear();
+        this.$scope$ARGS$memo.clear();
+        this.$scope$ARGS_$0$memo.clear();
         this.$scope$DOT$memo.clear();
         this.$scope$DOT_$0$memo.clear();
         this.$scope$ATOM$memo.clear();
         this.$scope$VARREF$memo.clear();
+        this.$scope$INTCONST$memo.clear();
         this.$scope$RETURN$memo.clear();
         this.$scope$EXTERNFUNC$memo.clear();
         this.$scope$EXTNAME$memo.clear();
@@ -363,10 +439,15 @@ export class Parser {
     protected $scope$SUM_$0$memo: Map<number, [Nullable<SUM_$0>, PosInfo]> = new Map();
     protected $scope$FAC$memo: Map<number, [Nullable<FAC>, PosInfo]> = new Map();
     protected $scope$FAC_$0$memo: Map<number, [Nullable<FAC_$0>, PosInfo]> = new Map();
+    protected $scope$CALL$memo: Map<number, [Nullable<CALL>, PosInfo]> = new Map();
+    protected $scope$CALL_$0$memo: Map<number, [Nullable<CALL_$0>, PosInfo]> = new Map();
+    protected $scope$ARGS$memo: Map<number, [Nullable<ARGS>, PosInfo]> = new Map();
+    protected $scope$ARGS_$0$memo: Map<number, [Nullable<ARGS_$0>, PosInfo]> = new Map();
     protected $scope$DOT$memo: Map<number, [Nullable<DOT>, PosInfo]> = new Map();
     protected $scope$DOT_$0$memo: Map<number, [Nullable<DOT_$0>, PosInfo]> = new Map();
     protected $scope$ATOM$memo: Map<number, [Nullable<ATOM>, PosInfo]> = new Map();
     protected $scope$VARREF$memo: Map<number, [Nullable<VARREF>, PosInfo]> = new Map();
+    protected $scope$INTCONST$memo: Map<number, [Nullable<INTCONST>, PosInfo]> = new Map();
     protected $scope$RETURN$memo: Map<number, [Nullable<RETURN>, PosInfo]> = new Map();
     protected $scope$EXTERNFUNC$memo: Map<number, [Nullable<EXTERNFUNC>, PosInfo]> = new Map();
     protected $scope$EXTNAME$memo: Map<number, [Nullable<EXTNAME>, PosInfo]> = new Map();
@@ -609,6 +690,7 @@ export class Parser {
                 return this.choice<STATEMENT>([
                     () => this.matchSTATEMENT_1($$dpth + 1, $$cr),
                     () => this.matchSTATEMENT_2($$dpth + 1, $$cr),
+                    () => this.matchSTATEMENT_3($$dpth + 1, $$cr),
                 ]);
             },
             this.$scope$STATEMENT$memo,
@@ -619,6 +701,9 @@ export class Parser {
     }
     public matchSTATEMENT_2($$dpth: number, $$cr?: ErrorTracker): Nullable<STATEMENT_2> {
         return this.matchRETURN($$dpth + 1, $$cr);
+    }
+    public matchSTATEMENT_3($$dpth: number, $$cr?: ErrorTracker): Nullable<STATEMENT_3> {
+        return this.matchCALL($$dpth + 1, $$cr);
     }
     public matchLET($$dpth: number, $$cr?: ErrorTracker): Nullable<LET> {
         return this.memoise(
@@ -711,11 +796,11 @@ export class Parser {
             () => {
                 return this.run<FAC>($$dpth,
                     () => {
-                        let $scope$h: Nullable<DOT>;
+                        let $scope$h: Nullable<CALL>;
                         let $scope$t: Nullable<FAC_$0[]>;
                         let $$res: Nullable<FAC> = null;
                         if (true
-                            && ($scope$h = this.matchDOT($$dpth + 1, $$cr)) !== null
+                            && ($scope$h = this.matchCALL($$dpth + 1, $$cr)) !== null
                             && ($scope$t = this.loop<FAC_$0>(() => this.matchFAC_$0($$dpth + 1, $$cr), 0, -1)) !== null
                         ) {
                             $$res = new FAC($scope$h, $scope$t);
@@ -732,13 +817,13 @@ export class Parser {
                 return this.run<FAC_$0>($$dpth,
                     () => {
                         let $scope$op: Nullable<string>;
-                        let $scope$v: Nullable<DOT>;
+                        let $scope$v: Nullable<CALL>;
                         let $$res: Nullable<FAC_$0> = null;
                         if (true
                             && this.match_($$dpth + 1, $$cr) !== null
                             && ($scope$op = this.regexAccept(String.raw`(?:\*|/)`, "", $$dpth + 1, $$cr)) !== null
                             && this.match_($$dpth + 1, $$cr) !== null
-                            && ($scope$v = this.matchDOT($$dpth + 1, $$cr)) !== null
+                            && ($scope$v = this.matchCALL($$dpth + 1, $$cr)) !== null
                         ) {
                             $$res = {kind: ASTKinds.FAC_$0, op: $scope$op, v: $scope$v};
                         }
@@ -746,6 +831,91 @@ export class Parser {
                     });
             },
             this.$scope$FAC_$0$memo,
+        );
+    }
+    public matchCALL($$dpth: number, $$cr?: ErrorTracker): Nullable<CALL> {
+        return this.memoise(
+            () => {
+                return this.run<CALL>($$dpth,
+                    () => {
+                        let $scope$h: Nullable<DOT>;
+                        let $scope$t: Nullable<CALL_$0[]>;
+                        let $$res: Nullable<CALL> = null;
+                        if (true
+                            && ($scope$h = this.matchDOT($$dpth + 1, $$cr)) !== null
+                            && ($scope$t = this.loop<CALL_$0>(() => this.matchCALL_$0($$dpth + 1, $$cr), 0, -1)) !== null
+                        ) {
+                            $$res = new CALL($scope$h, $scope$t);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$CALL$memo,
+        );
+    }
+    public matchCALL_$0($$dpth: number, $$cr?: ErrorTracker): Nullable<CALL_$0> {
+        return this.memoise(
+            () => {
+                return this.run<CALL_$0>($$dpth,
+                    () => {
+                        let $scope$args: Nullable<Nullable<ARGS>>;
+                        let $$res: Nullable<CALL_$0> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$args = this.matchARGS($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.CALL_$0, args: $scope$args};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$CALL_$0$memo,
+        );
+    }
+    public matchARGS($$dpth: number, $$cr?: ErrorTracker): Nullable<ARGS> {
+        return this.memoise(
+            () => {
+                return this.run<ARGS>($$dpth,
+                    () => {
+                        let $scope$h: Nullable<EXPR>;
+                        let $scope$t: Nullable<ARGS_$0[]>;
+                        let $$res: Nullable<ARGS> = null;
+                        if (true
+                            && ($scope$h = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                            && ($scope$t = this.loop<ARGS_$0>(() => this.matchARGS_$0($$dpth + 1, $$cr), 0, -1)) !== null
+                        ) {
+                            $$res = new ARGS($scope$h, $scope$t);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$ARGS$memo,
+        );
+    }
+    public matchARGS_$0($$dpth: number, $$cr?: ErrorTracker): Nullable<ARGS_$0> {
+        return this.memoise(
+            () => {
+                return this.run<ARGS_$0>($$dpth,
+                    () => {
+                        let $scope$v: Nullable<EXPR>;
+                        let $$res: Nullable<ARGS_$0> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:,)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$v = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.ARGS_$0, v: $scope$v};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$ARGS_$0$memo,
         );
     }
     public matchDOT($$dpth: number, $$cr?: ErrorTracker): Nullable<DOT> {
@@ -793,10 +963,19 @@ export class Parser {
     public matchATOM($$dpth: number, $$cr?: ErrorTracker): Nullable<ATOM> {
         return this.memoise(
             () => {
-                return this.matchVARREF($$dpth + 1, $$cr);
+                return this.choice<ATOM>([
+                    () => this.matchATOM_1($$dpth + 1, $$cr),
+                    () => this.matchATOM_2($$dpth + 1, $$cr),
+                ]);
             },
             this.$scope$ATOM$memo,
         );
+    }
+    public matchATOM_1($$dpth: number, $$cr?: ErrorTracker): Nullable<ATOM_1> {
+        return this.matchVARREF($$dpth + 1, $$cr);
+    }
+    public matchATOM_2($$dpth: number, $$cr?: ErrorTracker): Nullable<ATOM_2> {
+        return this.matchINTCONST($$dpth + 1, $$cr);
     }
     public matchVARREF($$dpth: number, $$cr?: ErrorTracker): Nullable<VARREF> {
         return this.memoise(
@@ -814,6 +993,24 @@ export class Parser {
                     });
             },
             this.$scope$VARREF$memo,
+        );
+    }
+    public matchINTCONST($$dpth: number, $$cr?: ErrorTracker): Nullable<INTCONST> {
+        return this.memoise(
+            () => {
+                return this.run<INTCONST>($$dpth,
+                    () => {
+                        let $scope$s: Nullable<string>;
+                        let $$res: Nullable<INTCONST> = null;
+                        if (true
+                            && ($scope$s = this.regexAccept(String.raw`(?:[\-\+]?\d+)`, "", $$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = new INTCONST($scope$s);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$INTCONST$memo,
         );
     }
     public matchRETURN($$dpth: number, $$cr?: ErrorTracker): Nullable<RETURN> {
