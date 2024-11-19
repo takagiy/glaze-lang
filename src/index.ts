@@ -5,9 +5,9 @@ import { Module } from "./module";
 
 const program = new Command();
 
-program.argument("<source>", "source file");
+program.argument("<source>", "source file").argument("<output>", "output file");
 
-program.action((source) => {
+program.action((source, output) => {
   const sourceCode = fs.readFileSync(source, "utf-8");
   const parseResult = parser.parse(sourceCode);
   if (parseResult.ast === null) {
@@ -16,8 +16,8 @@ program.action((source) => {
     return;
   }
   const module = Module.fromAst(parseResult.ast);
-  const js = module.emitJs();
-  fs.writeFileSync("out.js", js);
+  const script = module.emitJs();
+  fs.writeFileSync(output, script);
 });
 
 program.parse(process.argv);
