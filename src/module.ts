@@ -6,7 +6,6 @@ import {
   type SUM,
   type FAC,
   type DOT,
-  type VARREF,
   type CALL,
   type ATOM,
 } from "./parser";
@@ -214,43 +213,38 @@ function emitStatement(statement: STATEMENT): SExprArray {
 }
 
 function emitExpression(expr: SUM | FAC | DOT | CALL | ATOM): SExprArray {
-  if (expr.kind === ASTKinds.SUM) {
-    return expr.operands
-      .map(emitExpression)
-      .reduce((acc, e) => ["i32.add", acc, e]);
+  switch (expr.kind) {
+    case ASTKinds.SUM:
+      return expr.operands
+        .map(emitExpression)
+        .reduce((acc, e) => ["i32.add", acc, e]);
+    case ASTKinds.FAC:
+      return expr.operands
+        .map(emitExpression)
+        .reduce((acc, e) => ["i32.mul", acc, e]);
+    case ASTKinds.DOT:
+      return expr.accessors.reduce<SExprArray>(
+        (acc, a) => ["struct.get", acc, `$${a}`],
+        emitExpression(expr.receiver),
+      );
+    case ASTKinds.CALL:
+      if (expr.callee.kind !== ASTKinds.VARREF) {
+        throw new Error("Unknown callee kind");
+      }
+      if (expr.args[0] === undefined) {
+        throw new Error("Unexpected (no call)");
+      }
+      if (expr.args.length > 1) {
+        throw new Error("Multiple call not supported");
+      }
+      return [
+        "call",
+        `$${expr.callee.name}`,
+        ...expr.args[0].map(emitExpression),
+      ];
+    case ASTKinds.VARREF:
+      return ["local.get", `$${expr.name}`];
+    case ASTKinds.INTCONST:
+      return ["i32.const", expr.value.toString()];
   }
-  if (expr.kind === ASTKinds.FAC) {
-    return expr.operands
-      .map(emitExpression)
-      .reduce((acc, e) => ["i32.mul", acc, e]);
-  }
-  if (expr.kind === ASTKinds.CALL) {
-    if (expr.callee.kind !== ASTKinds.VARREF) {
-      throw new Error("Unknown callee kind");
-    }
-    if (expr.args[0] === undefined) {
-      throw new Error("No call");
-    }
-    if (expr.args.length > 1) {
-      throw new Error("Multiple call not supported");
-    }
-    return [
-      "call",
-      `$${expr.callee.name}`,
-      ...expr.args[0].map(emitExpression),
-    ];
-  }
-  if (expr.kind === ASTKinds.DOT) {
-    return expr.accessors.reduce<SExprArray>(
-      (acc, a) => ["struct.get", acc, `$${a}`],
-      emitExpression(expr.receiver),
-    );
-  }
-  if (expr.kind === ASTKinds.VARREF) {
-    return ["local.get", `$${expr.name}`];
-  }
-  if (expr.kind === ASTKinds.INTCONST) {
-    return ["i32.const", expr.value.toString()];
-  }
-  throw new Error("Unknown expression kind");
 }
