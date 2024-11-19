@@ -63,3 +63,12 @@ test("public function", (t) => {
 
   module.emitBinary();
 });
+
+test("extern", (t) => {
+  const ast = parser.parse(
+    "import console.log as fn println (value: i32) -> unit;",
+  );
+  t.not(ast.ast, null);
+
+  console.dir(ast.ast, { depth: null });
+});

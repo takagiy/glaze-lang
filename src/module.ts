@@ -40,10 +40,20 @@ export class ParameterDefinition {
   ) {}
 }
 
+export class ExternDefinition {
+  constructor(
+    public externalName: string,
+    public importName: string,
+    public parameters: ParameterDefinition[],
+    public returnType: string,
+  ) {}
+}
+
 export class Module {
   constructor(
     public structDefinitions: StructDefinition[],
     public functionDefinitions: FunctionDefinition[],
+    public externDefinitions: ExternDefinition[],
   ) {}
 
   static fromAst(ast: PROGRAM): Module {
@@ -64,7 +74,21 @@ export class Module {
         returnType: d.returnType.name,
         body: d.body,
       }));
-    return new Module(structDefinitions, functionDefinitions);
+    const externDefinitions = ast.toplevels
+      .filter((d) => d.kind === ASTKinds.EXTERNFUNC)
+      .map((d) => ({
+        externalName: d.externalName,
+        importName: d.importName,
+        parameters: d.params.map(
+          (p) => new ParameterDefinition(p.name, p.type.name),
+        ),
+        returnType: d.returnType.name,
+      }));
+    return new Module(
+      structDefinitions,
+      functionDefinitions,
+      externDefinitions,
+    );
   }
 
   emitJs() {
@@ -74,9 +98,17 @@ export class Module {
     return `const wasmBase64 = "${wasmBase64}"
 const wasmBuffer = Buffer.from(wasmBase64, "base64");
 const mod = new WebAssembly.Module(wasmBuffer);
-const instance = new WebAssembly.Instance(mod);
+const importObject = ${this.emitJsImportObject()};
+const instance = new WebAssembly.Instance(mod, importObject);
 module.exports = instance.exports;
 `;
+  }
+
+  emitJsImportObject() {
+    const emit = (e: ExternDefinition) => {
+      return `${e.importName}: function(${e.parameters.map((p) => p.name).join(", ")}) { return ${e.externalName}(${e.parameters.map((p) => p.name).join(", ")}); },`;
+    };
+    return `{ env: { ${this.externDefinitions.map(emit).join(" ")} } }`;
   }
 
   emitBinary(): Uint8Array {
@@ -94,6 +126,7 @@ module.exports = instance.exports;
     return [
       "module",
       ...this.emitTypes(),
+      ...this.emitImports(),
       ...this.emitFunctions(),
       ...this.emitExports(),
       ...this.emitStart(),
@@ -105,6 +138,20 @@ module.exports = instance.exports;
       "type",
       `$${s.name}`,
       ["struct", ...s.fields.map((f) => ["field", `$${f.name}`, f.type])],
+    ]);
+  }
+
+  emitImports() {
+    return this.externDefinitions.map((e) => [
+      "import",
+      `"env"`,
+      `"${e.importName}"`,
+      [
+        "func",
+        `$${e.importName}`,
+        ...e.parameters.map((p) => ["param", p.type]),
+        ...(e.returnType === "unit" ? [] : [["result", e.returnType]]),
+      ],
     ]);
   }
 

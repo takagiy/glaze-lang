@@ -1,5 +1,5 @@
 PROGRAM    := toplevels=TOPLEVEL* $
-TOPLEVEL   := STRUCTDEF | FUNCDEF
+TOPLEVEL   := STRUCTDEF | FUNCDEF | EXTERNFUNC
 STRUCTDEF  := _ 'struct' __ name=IDENTIFIER _ '{' _ f=FIELDS? _ '}' _
               .fields = FIELD[] { return this.f ? this.f.v : []; }
 FIELDS     := h=FIELD t={ _ ',' _ v=FIELD}*
@@ -30,6 +30,9 @@ ATOM       := VARREF
 VARREF     := name=IDENTIFIER
 RETURN     := _ 'return' _ e=EXPR
               .expr = SUM | FAC | DOT | ATOM { return this.e.v; }
+EXTERNFUNC := _ 'import' __ externalName=EXTNAME _ 'as' __ 'fn' _ importName=IDENTIFIER _ '\(' _ p=FIELDS? _ '\)' _ '->' _ returnType=TYPE _ ';' _
+              .params = FIELD[] { return this.p ? this.p.v : []; }
+EXTNAME    := '[a-zA-Z][a-zA-Z\d_]*(\.[a-zA-Z][a-zA-Z\d_]*)*'
 TYPE       := name=IDENTIFIER
 IDENTIFIER := '[a-zA-Z][a-zA-Z\d_]*'
 _          := '\s*'
