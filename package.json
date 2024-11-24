@@ -3,7 +3,9 @@
   "name": "@glaze-lang/glaze",
   "version": "1.0.0",
   "description": "",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -12,7 +14,7 @@
   },
   "scripts": {
     "build": "pnpm run build:parser && pnpm run build:js",
-    "build:parser": "tspeg grammer/grammer.tspeg src/parser.ts --enable-memo",
+    "build:parser": "tspeg grammer/grammer.tspeg src/parser.ts",
     "build:js": "rollup -c rollup.config.js",
     "lint": "biome check; status=$?; echo 'Use `pnpm run lint!` to apply the fixes.'; exit $status",
     "lint!": "biome check --write",
@@ -38,8 +40,12 @@
     "extensions": {
       "ts": "module"
     },
-    "nodeArguments": ["--import=tsimp/import"],
-    "files": ["test/**/*.ts"]
+    "nodeArguments": [
+      "--import=tsimp/import"
+    ],
+    "files": [
+      "test/**/*.ts"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",

@@ -1,0 +1,11 @@
+import console.log as fn println (value: i32) -> unit;
+
+fn add(a: i32, b: i32) -> i32 {
+  let c = a + b;
+  return c;
+}
+
+fn main() -> unit {
+  let answer = add(21, 21);
+  println(answer);
+}

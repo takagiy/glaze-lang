@@ -8,6 +8,7 @@ import {
   type DOT,
   type CALL,
   type ATOM,
+  EXPR,
 } from "./parser";
 
 export class StructDefinition {
@@ -212,36 +213,22 @@ function emitStatement(statement: STATEMENT): SExprArray {
   }
 }
 
-function emitExpression(expr: SUM | FAC | DOT | CALL | ATOM): SExprArray {
+function emitExpression(expr: EXPR): SExprArray {
   switch (expr.kind) {
     case ASTKinds.SUM:
-      return expr.operands
-        .map(emitExpression)
-        .reduce((acc, e) => ["i32.add", acc, e]);
+      return ["i32.add", emitExpression(expr.left), emitExpression(expr.right)];
     case ASTKinds.FAC:
-      return expr.operands
-        .map(emitExpression)
-        .reduce((acc, e) => ["i32.mul", acc, e]);
+      return ["i32.mul", emitExpression(expr.left), emitExpression(expr.right)];
     case ASTKinds.DOT:
-      return expr.accessors.reduce<SExprArray>(
-        (acc, a) => ["struct.get", acc, `$${a}`],
-        emitExpression(expr.receiver),
-      );
+      if (expr.right.kind !== ASTKinds.VARREF) {
+        throw new Error("Unknown dot right kind");
+      }
+      return ["struct.get", `$${expr.right.name}`, emitExpression(expr.left)];
     case ASTKinds.CALL:
       if (expr.callee.kind !== ASTKinds.VARREF) {
         throw new Error("Unknown callee kind");
       }
-      if (expr.args[0] === undefined) {
-        throw new Error("Unexpected (no call)");
-      }
-      if (expr.args.length > 1) {
-        throw new Error("Multiple call not supported");
-      }
-      return [
-        "call",
-        `$${expr.callee.name}`,
-        ...expr.args[0].map(emitExpression),
-      ];
+      return ["call", `$${expr.callee.name}`, ...expr.args.map(emitExpression)];
     case ASTKinds.VARREF:
       return ["local.get", `$${expr.name}`];
     case ASTKinds.INTCONST:
