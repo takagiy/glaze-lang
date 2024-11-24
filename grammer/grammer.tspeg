@@ -22,7 +22,7 @@ EDOT       := DOT | EATOM
 EATOM      := ATOM
 SUM        := left=EFAC _ '\+' _ right=ESUM
 FAC        := left=ECALL _ '\*' _ right=EFAC
-CALL       := callee=ECALL _ '\(' _ a=ARGS? _ '\)' _
+CALL       := callee=EDOT _ '\(' _ a=ARGS? _ '\)' _
               .args = EXPR[] { return this.a ? this.a.v : []; }
 ARGS       := h=EXPR t={_ ',' _ v=EXPR }*
               .v = EXPR[] { return [this.h].concat(t.map(e => e.v)); }

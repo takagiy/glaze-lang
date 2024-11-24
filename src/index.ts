@@ -12,7 +12,7 @@ program.action((source, output) => {
   const parseResult = parser.parse(sourceCode);
   if (parseResult.ast === null) {
     console.error("Failed to parse the source code");
-    console.error(parseResult.errs);
+    console.dir(parseResult.errs, { depth: null });
     return;
   }
   const module = Module.fromAst(parseResult.ast);

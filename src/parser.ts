@@ -24,7 +24,7 @@
 * EATOM      := ATOM
 * SUM        := left=EFAC _ '\+' _ right=ESUM
 * FAC        := left=ECALL _ '\*' _ right=EFAC
-* CALL       := callee=ECALL _ '\(' _ a=ARGS? _ '\)' _
+* CALL       := callee=EDOT _ '\(' _ a=ARGS? _ '\)' _
 *               .args = EXPR[] { return this.a ? this.a.v : []; }
 * ARGS       := h=EXPR t={_ ',' _ v=EXPR }*
 *               .v = EXPR[] { return [this.h].concat(t.map(e => e.v)); }
@@ -216,10 +216,10 @@ export interface FAC {
 }
 export class CALL {
     public kind: ASTKinds.CALL = ASTKinds.CALL;
-    public callee: ECALL;
+    public callee: EDOT;
     public a: Nullable<ARGS>;
     public args: EXPR[];
-    constructor(callee: ECALL, a: Nullable<ARGS>){
+    constructor(callee: EDOT, a: Nullable<ARGS>){
         this.callee = callee;
         this.a = a;
         this.args = ((): EXPR[] => {
@@ -700,36 +700,15 @@ export class Parser {
         return this.matchECALL($$dpth + 1, $$cr);
     }
     public matchECALL($$dpth: number, $$cr?: ErrorTracker): Nullable<ECALL> {
-        const fn = () => {
-            return this.choice<ECALL>([
-                () => this.matchECALL_1($$dpth + 1, $$cr),
-                () => this.matchECALL_2($$dpth + 1, $$cr),
-            ]);
-        };
-        const $scope$pos = this.mark();
-        const memo = this.$scope$ECALL$memo.get($scope$pos.overallPos);
-        if(memo !== undefined) {
-            this.reset(memo[1]);
-            return memo[0];
-        }
-        const $scope$oldMemoSafe = this.memoSafe;
-        this.memoSafe = false;
-        this.$scope$ECALL$memo.set($scope$pos.overallPos, [null, $scope$pos]);
-        let lastRes: Nullable<ECALL> = null;
-        let lastPos: PosInfo = $scope$pos;
-        for(;;) {
-            this.reset($scope$pos);
-            const res = fn();
-            const end = this.mark();
-            if(end.overallPos <= lastPos.overallPos)
-                break;
-            lastRes = res;
-            lastPos = end;
-            this.$scope$ECALL$memo.set($scope$pos.overallPos, [lastRes, lastPos]);
-        }
-        this.reset(lastPos);
-        this.memoSafe = $scope$oldMemoSafe;
-        return lastRes;
+        return this.memoise(
+            () => {
+                return this.choice<ECALL>([
+                    () => this.matchECALL_1($$dpth + 1, $$cr),
+                    () => this.matchECALL_2($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$ECALL$memo,
+        );
     }
     public matchECALL_1($$dpth: number, $$cr?: ErrorTracker): Nullable<ECALL_1> {
         return this.matchCALL($$dpth + 1, $$cr);
@@ -834,11 +813,11 @@ export class Parser {
             () => {
                 return this.run<CALL>($$dpth,
                     () => {
-                        let $scope$callee: Nullable<ECALL>;
+                        let $scope$callee: Nullable<EDOT>;
                         let $scope$a: Nullable<Nullable<ARGS>>;
                         let $$res: Nullable<CALL> = null;
                         if (true
-                            && ($scope$callee = this.matchECALL($$dpth + 1, $$cr)) !== null
+                            && ($scope$callee = this.matchEDOT($$dpth + 1, $$cr)) !== null
                             && this.match_($$dpth + 1, $$cr) !== null
                             && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
                             && this.match_($$dpth + 1, $$cr) !== null
