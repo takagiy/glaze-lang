@@ -312,31 +312,105 @@ export class Parser {
         return this.pos.overallPos === this.input.length;
     }
     public clearMemos(): void {
+        this.$scope$PROGRAM$memo.clear();
+        this.$scope$TOPLEVEL$memo.clear();
+        this.$scope$STRUCTDEF$memo.clear();
+        this.$scope$FIELDS$memo.clear();
+        this.$scope$FIELDS_$0$memo.clear();
+        this.$scope$FIELD$memo.clear();
+        this.$scope$FUNCDEF$memo.clear();
+        this.$scope$VISIBILITY$memo.clear();
+        this.$scope$BODY$memo.clear();
+        this.$scope$BODY_$0$memo.clear();
+        this.$scope$STATEMENT$memo.clear();
+        this.$scope$LET$memo.clear();
+        this.$scope$EXPR$memo.clear();
+        this.$scope$ESUM$memo.clear();
+        this.$scope$EFAC$memo.clear();
         this.$scope$ECALL$memo.clear();
         this.$scope$EDOT$memo.clear();
+        this.$scope$EATOM$memo.clear();
+        this.$scope$SUM$memo.clear();
+        this.$scope$FAC$memo.clear();
+        this.$scope$CALL$memo.clear();
+        this.$scope$ARGS$memo.clear();
+        this.$scope$ARGS_$0$memo.clear();
+        this.$scope$DOT$memo.clear();
+        this.$scope$ATOM$memo.clear();
+        this.$scope$VARREF$memo.clear();
+        this.$scope$INTCONST$memo.clear();
+        this.$scope$RETURN$memo.clear();
+        this.$scope$EXTERNFUNC$memo.clear();
+        this.$scope$EXTNAME$memo.clear();
+        this.$scope$TYPE$memo.clear();
+        this.$scope$IDENTIFIER$memo.clear();
+        this.$scope$_$memo.clear();
+        this.$scope$__$memo.clear();
     }
+    protected $scope$PROGRAM$memo: Map<number, [Nullable<PROGRAM>, PosInfo]> = new Map();
+    protected $scope$TOPLEVEL$memo: Map<number, [Nullable<TOPLEVEL>, PosInfo]> = new Map();
+    protected $scope$STRUCTDEF$memo: Map<number, [Nullable<STRUCTDEF>, PosInfo]> = new Map();
+    protected $scope$FIELDS$memo: Map<number, [Nullable<FIELDS>, PosInfo]> = new Map();
+    protected $scope$FIELDS_$0$memo: Map<number, [Nullable<FIELDS_$0>, PosInfo]> = new Map();
+    protected $scope$FIELD$memo: Map<number, [Nullable<FIELD>, PosInfo]> = new Map();
+    protected $scope$FUNCDEF$memo: Map<number, [Nullable<FUNCDEF>, PosInfo]> = new Map();
+    protected $scope$VISIBILITY$memo: Map<number, [Nullable<VISIBILITY>, PosInfo]> = new Map();
+    protected $scope$BODY$memo: Map<number, [Nullable<BODY>, PosInfo]> = new Map();
+    protected $scope$BODY_$0$memo: Map<number, [Nullable<BODY_$0>, PosInfo]> = new Map();
+    protected $scope$STATEMENT$memo: Map<number, [Nullable<STATEMENT>, PosInfo]> = new Map();
+    protected $scope$LET$memo: Map<number, [Nullable<LET>, PosInfo]> = new Map();
+    protected $scope$EXPR$memo: Map<number, [Nullable<EXPR>, PosInfo]> = new Map();
+    protected $scope$ESUM$memo: Map<number, [Nullable<ESUM>, PosInfo]> = new Map();
+    protected $scope$EFAC$memo: Map<number, [Nullable<EFAC>, PosInfo]> = new Map();
     protected $scope$ECALL$memo: Map<number, [Nullable<ECALL>, PosInfo]> = new Map();
     protected $scope$EDOT$memo: Map<number, [Nullable<EDOT>, PosInfo]> = new Map();
+    protected $scope$EATOM$memo: Map<number, [Nullable<EATOM>, PosInfo]> = new Map();
+    protected $scope$SUM$memo: Map<number, [Nullable<SUM>, PosInfo]> = new Map();
+    protected $scope$FAC$memo: Map<number, [Nullable<FAC>, PosInfo]> = new Map();
+    protected $scope$CALL$memo: Map<number, [Nullable<CALL>, PosInfo]> = new Map();
+    protected $scope$ARGS$memo: Map<number, [Nullable<ARGS>, PosInfo]> = new Map();
+    protected $scope$ARGS_$0$memo: Map<number, [Nullable<ARGS_$0>, PosInfo]> = new Map();
+    protected $scope$DOT$memo: Map<number, [Nullable<DOT>, PosInfo]> = new Map();
+    protected $scope$ATOM$memo: Map<number, [Nullable<ATOM>, PosInfo]> = new Map();
+    protected $scope$VARREF$memo: Map<number, [Nullable<VARREF>, PosInfo]> = new Map();
+    protected $scope$INTCONST$memo: Map<number, [Nullable<INTCONST>, PosInfo]> = new Map();
+    protected $scope$RETURN$memo: Map<number, [Nullable<RETURN>, PosInfo]> = new Map();
+    protected $scope$EXTERNFUNC$memo: Map<number, [Nullable<EXTERNFUNC>, PosInfo]> = new Map();
+    protected $scope$EXTNAME$memo: Map<number, [Nullable<EXTNAME>, PosInfo]> = new Map();
+    protected $scope$TYPE$memo: Map<number, [Nullable<TYPE>, PosInfo]> = new Map();
+    protected $scope$IDENTIFIER$memo: Map<number, [Nullable<IDENTIFIER>, PosInfo]> = new Map();
+    protected $scope$_$memo: Map<number, [Nullable<_>, PosInfo]> = new Map();
+    protected $scope$__$memo: Map<number, [Nullable<__>, PosInfo]> = new Map();
     public matchPROGRAM($$dpth: number, $$cr?: ErrorTracker): Nullable<PROGRAM> {
-        return this.run<PROGRAM>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$toplevels: Nullable<TOPLEVEL[]>;
-                let $$res: Nullable<PROGRAM> = null;
-                if (true
-                    && ($scope$toplevels = this.loop<TOPLEVEL>(() => this.matchTOPLEVEL($$dpth + 1, $$cr), 0, -1)) !== null
-                    && this.match$EOF($$cr) !== null
-                ) {
-                    $$res = {kind: ASTKinds.PROGRAM, toplevels: $scope$toplevels};
-                }
-                return $$res;
-            });
+                return this.run<PROGRAM>($$dpth,
+                    () => {
+                        let $scope$toplevels: Nullable<TOPLEVEL[]>;
+                        let $$res: Nullable<PROGRAM> = null;
+                        if (true
+                            && ($scope$toplevels = this.loop<TOPLEVEL>(() => this.matchTOPLEVEL($$dpth + 1, $$cr), 0, -1)) !== null
+                            && this.match$EOF($$cr) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.PROGRAM, toplevels: $scope$toplevels};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$PROGRAM$memo,
+        );
     }
     public matchTOPLEVEL($$dpth: number, $$cr?: ErrorTracker): Nullable<TOPLEVEL> {
-        return this.choice<TOPLEVEL>([
-            () => this.matchTOPLEVEL_1($$dpth + 1, $$cr),
-            () => this.matchTOPLEVEL_2($$dpth + 1, $$cr),
-            () => this.matchTOPLEVEL_3($$dpth + 1, $$cr),
-        ]);
+        return this.memoise(
+            () => {
+                return this.choice<TOPLEVEL>([
+                    () => this.matchTOPLEVEL_1($$dpth + 1, $$cr),
+                    () => this.matchTOPLEVEL_2($$dpth + 1, $$cr),
+                    () => this.matchTOPLEVEL_3($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$TOPLEVEL$memo,
+        );
     }
     public matchTOPLEVEL_1($$dpth: number, $$cr?: ErrorTracker): Nullable<TOPLEVEL_1> {
         return this.matchSTRUCTDEF($$dpth + 1, $$cr);
@@ -348,160 +422,205 @@ export class Parser {
         return this.matchEXTERNFUNC($$dpth + 1, $$cr);
     }
     public matchSTRUCTDEF($$dpth: number, $$cr?: ErrorTracker): Nullable<STRUCTDEF> {
-        return this.run<STRUCTDEF>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $scope$f: Nullable<Nullable<FIELDS>>;
-                let $$res: Nullable<STRUCTDEF> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:struct)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match__($$dpth + 1, $$cr) !== null
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:{)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$f = this.matchFIELDS($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:})`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                ) {
-                    $$res = new STRUCTDEF($scope$name, $scope$f);
-                }
-                return $$res;
-            });
+                return this.run<STRUCTDEF>($$dpth,
+                    () => {
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $scope$f: Nullable<Nullable<FIELDS>>;
+                        let $$res: Nullable<STRUCTDEF> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:struct)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match__($$dpth + 1, $$cr) !== null
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:{)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$f = this.matchFIELDS($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:})`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = new STRUCTDEF($scope$name, $scope$f);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$STRUCTDEF$memo,
+        );
     }
     public matchFIELDS($$dpth: number, $$cr?: ErrorTracker): Nullable<FIELDS> {
-        return this.run<FIELDS>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$h: Nullable<FIELD>;
-                let $scope$t: Nullable<FIELDS_$0[]>;
-                let $$res: Nullable<FIELDS> = null;
-                if (true
-                    && ($scope$h = this.matchFIELD($$dpth + 1, $$cr)) !== null
-                    && ($scope$t = this.loop<FIELDS_$0>(() => this.matchFIELDS_$0($$dpth + 1, $$cr), 0, -1)) !== null
-                ) {
-                    $$res = new FIELDS($scope$h, $scope$t);
-                }
-                return $$res;
-            });
+                return this.run<FIELDS>($$dpth,
+                    () => {
+                        let $scope$h: Nullable<FIELD>;
+                        let $scope$t: Nullable<FIELDS_$0[]>;
+                        let $$res: Nullable<FIELDS> = null;
+                        if (true
+                            && ($scope$h = this.matchFIELD($$dpth + 1, $$cr)) !== null
+                            && ($scope$t = this.loop<FIELDS_$0>(() => this.matchFIELDS_$0($$dpth + 1, $$cr), 0, -1)) !== null
+                        ) {
+                            $$res = new FIELDS($scope$h, $scope$t);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$FIELDS$memo,
+        );
     }
     public matchFIELDS_$0($$dpth: number, $$cr?: ErrorTracker): Nullable<FIELDS_$0> {
-        return this.run<FIELDS_$0>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$v: Nullable<FIELD>;
-                let $$res: Nullable<FIELDS_$0> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:,)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$v = this.matchFIELD($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.FIELDS_$0, v: $scope$v};
-                }
-                return $$res;
-            });
+                return this.run<FIELDS_$0>($$dpth,
+                    () => {
+                        let $scope$v: Nullable<FIELD>;
+                        let $$res: Nullable<FIELDS_$0> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:,)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$v = this.matchFIELD($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.FIELDS_$0, v: $scope$v};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$FIELDS_$0$memo,
+        );
     }
     public matchFIELD($$dpth: number, $$cr?: ErrorTracker): Nullable<FIELD> {
-        return this.run<FIELD>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $scope$type: Nullable<TYPE>;
-                let $$res: Nullable<FIELD> = null;
-                if (true
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?::)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$type = this.matchTYPE($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.FIELD, name: $scope$name, type: $scope$type};
-                }
-                return $$res;
-            });
+                return this.run<FIELD>($$dpth,
+                    () => {
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $scope$type: Nullable<TYPE>;
+                        let $$res: Nullable<FIELD> = null;
+                        if (true
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?::)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$type = this.matchTYPE($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.FIELD, name: $scope$name, type: $scope$type};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$FIELD$memo,
+        );
     }
     public matchFUNCDEF($$dpth: number, $$cr?: ErrorTracker): Nullable<FUNCDEF> {
-        return this.run<FUNCDEF>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$v: Nullable<Nullable<VISIBILITY>>;
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $scope$p: Nullable<Nullable<FIELDS>>;
-                let $scope$returnType: Nullable<TYPE>;
-                let $scope$b: Nullable<Nullable<BODY>>;
-                let $$res: Nullable<FUNCDEF> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$v = this.matchVISIBILITY($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:fn)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match__($$dpth + 1, $$cr) !== null
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$p = this.matchFIELDS($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:->)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$returnType = this.matchTYPE($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:{)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$b = this.matchBODY($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:})`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                ) {
-                    $$res = new FUNCDEF($scope$v, $scope$name, $scope$p, $scope$returnType, $scope$b);
-                }
-                return $$res;
-            });
+                return this.run<FUNCDEF>($$dpth,
+                    () => {
+                        let $scope$v: Nullable<Nullable<VISIBILITY>>;
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $scope$p: Nullable<Nullable<FIELDS>>;
+                        let $scope$returnType: Nullable<TYPE>;
+                        let $scope$b: Nullable<Nullable<BODY>>;
+                        let $$res: Nullable<FUNCDEF> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$v = this.matchVISIBILITY($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:fn)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match__($$dpth + 1, $$cr) !== null
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$p = this.matchFIELDS($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:->)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$returnType = this.matchTYPE($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:{)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$b = this.matchBODY($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:})`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = new FUNCDEF($scope$v, $scope$name, $scope$p, $scope$returnType, $scope$b);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$FUNCDEF$memo,
+        );
     }
     public matchVISIBILITY($$dpth: number, $$cr?: ErrorTracker): Nullable<VISIBILITY> {
-        return this.regexAccept(String.raw`(?:pub)`, "", $$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.regexAccept(String.raw`(?:pub)`, "", $$dpth + 1, $$cr);
+            },
+            this.$scope$VISIBILITY$memo,
+        );
     }
     public matchBODY($$dpth: number, $$cr?: ErrorTracker): Nullable<BODY> {
-        return this.run<BODY>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$h: Nullable<STATEMENT>;
-                let $scope$t: Nullable<BODY_$0[]>;
-                let $$res: Nullable<BODY> = null;
-                if (true
-                    && ($scope$h = this.matchSTATEMENT($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$t = this.loop<BODY_$0>(() => this.matchBODY_$0($$dpth + 1, $$cr), 0, -1)) !== null
-                ) {
-                    $$res = new BODY($scope$h, $scope$t);
-                }
-                return $$res;
-            });
+                return this.run<BODY>($$dpth,
+                    () => {
+                        let $scope$h: Nullable<STATEMENT>;
+                        let $scope$t: Nullable<BODY_$0[]>;
+                        let $$res: Nullable<BODY> = null;
+                        if (true
+                            && ($scope$h = this.matchSTATEMENT($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$t = this.loop<BODY_$0>(() => this.matchBODY_$0($$dpth + 1, $$cr), 0, -1)) !== null
+                        ) {
+                            $$res = new BODY($scope$h, $scope$t);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$BODY$memo,
+        );
     }
     public matchBODY_$0($$dpth: number, $$cr?: ErrorTracker): Nullable<BODY_$0> {
-        return this.run<BODY_$0>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$v: Nullable<STATEMENT>;
-                let $$res: Nullable<BODY_$0> = null;
-                if (true
-                    && ($scope$v = this.matchSTATEMENT($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                ) {
-                    $$res = {kind: ASTKinds.BODY_$0, v: $scope$v};
-                }
-                return $$res;
-            });
+                return this.run<BODY_$0>($$dpth,
+                    () => {
+                        let $scope$v: Nullable<STATEMENT>;
+                        let $$res: Nullable<BODY_$0> = null;
+                        if (true
+                            && ($scope$v = this.matchSTATEMENT($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.BODY_$0, v: $scope$v};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$BODY_$0$memo,
+        );
     }
     public matchSTATEMENT($$dpth: number, $$cr?: ErrorTracker): Nullable<STATEMENT> {
-        return this.choice<STATEMENT>([
-            () => this.matchSTATEMENT_1($$dpth + 1, $$cr),
-            () => this.matchSTATEMENT_2($$dpth + 1, $$cr),
-            () => this.matchSTATEMENT_3($$dpth + 1, $$cr),
-        ]);
+        return this.memoise(
+            () => {
+                return this.choice<STATEMENT>([
+                    () => this.matchSTATEMENT_1($$dpth + 1, $$cr),
+                    () => this.matchSTATEMENT_2($$dpth + 1, $$cr),
+                    () => this.matchSTATEMENT_3($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$STATEMENT$memo,
+        );
     }
     public matchSTATEMENT_1($$dpth: number, $$cr?: ErrorTracker): Nullable<STATEMENT_1> {
         return this.matchLET($$dpth + 1, $$cr);
@@ -513,34 +632,49 @@ export class Parser {
         return this.matchCALL($$dpth + 1, $$cr);
     }
     public matchLET($$dpth: number, $$cr?: ErrorTracker): Nullable<LET> {
-        return this.run<LET>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $scope$expr: Nullable<EXPR>;
-                let $$res: Nullable<LET> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:let)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match__($$dpth + 1, $$cr) !== null
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:=)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$expr = this.matchEXPR($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.LET, name: $scope$name, expr: $scope$expr};
-                }
-                return $$res;
-            });
+                return this.run<LET>($$dpth,
+                    () => {
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $scope$expr: Nullable<EXPR>;
+                        let $$res: Nullable<LET> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:let)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match__($$dpth + 1, $$cr) !== null
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:=)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$expr = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.LET, name: $scope$name, expr: $scope$expr};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$LET$memo,
+        );
     }
     public matchEXPR($$dpth: number, $$cr?: ErrorTracker): Nullable<EXPR> {
-        return this.matchESUM($$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.matchESUM($$dpth + 1, $$cr);
+            },
+            this.$scope$EXPR$memo,
+        );
     }
     public matchESUM($$dpth: number, $$cr?: ErrorTracker): Nullable<ESUM> {
-        return this.choice<ESUM>([
-            () => this.matchESUM_1($$dpth + 1, $$cr),
-            () => this.matchESUM_2($$dpth + 1, $$cr),
-        ]);
+        return this.memoise(
+            () => {
+                return this.choice<ESUM>([
+                    () => this.matchESUM_1($$dpth + 1, $$cr),
+                    () => this.matchESUM_2($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$ESUM$memo,
+        );
     }
     public matchESUM_1($$dpth: number, $$cr?: ErrorTracker): Nullable<ESUM_1> {
         return this.matchSUM($$dpth + 1, $$cr);
@@ -549,10 +683,15 @@ export class Parser {
         return this.matchEFAC($$dpth + 1, $$cr);
     }
     public matchEFAC($$dpth: number, $$cr?: ErrorTracker): Nullable<EFAC> {
-        return this.choice<EFAC>([
-            () => this.matchEFAC_1($$dpth + 1, $$cr),
-            () => this.matchEFAC_2($$dpth + 1, $$cr),
-        ]);
+        return this.memoise(
+            () => {
+                return this.choice<EFAC>([
+                    () => this.matchEFAC_1($$dpth + 1, $$cr),
+                    () => this.matchEFAC_2($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$EFAC$memo,
+        );
     }
     public matchEFAC_1($$dpth: number, $$cr?: ErrorTracker): Nullable<EFAC_1> {
         return this.matchFAC($$dpth + 1, $$cr);
@@ -637,119 +776,159 @@ export class Parser {
         return this.matchEATOM($$dpth + 1, $$cr);
     }
     public matchEATOM($$dpth: number, $$cr?: ErrorTracker): Nullable<EATOM> {
-        return this.matchATOM($$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.matchATOM($$dpth + 1, $$cr);
+            },
+            this.$scope$EATOM$memo,
+        );
     }
     public matchSUM($$dpth: number, $$cr?: ErrorTracker): Nullable<SUM> {
-        return this.run<SUM>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$left: Nullable<EFAC>;
-                let $scope$right: Nullable<ESUM>;
-                let $$res: Nullable<SUM> = null;
-                if (true
-                    && ($scope$left = this.matchEFAC($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\+)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$right = this.matchESUM($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.SUM, left: $scope$left, right: $scope$right};
-                }
-                return $$res;
-            });
+                return this.run<SUM>($$dpth,
+                    () => {
+                        let $scope$left: Nullable<EFAC>;
+                        let $scope$right: Nullable<ESUM>;
+                        let $$res: Nullable<SUM> = null;
+                        if (true
+                            && ($scope$left = this.matchEFAC($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\+)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$right = this.matchESUM($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.SUM, left: $scope$left, right: $scope$right};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$SUM$memo,
+        );
     }
     public matchFAC($$dpth: number, $$cr?: ErrorTracker): Nullable<FAC> {
-        return this.run<FAC>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$left: Nullable<ECALL>;
-                let $scope$right: Nullable<EFAC>;
-                let $$res: Nullable<FAC> = null;
-                if (true
-                    && ($scope$left = this.matchECALL($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\*)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$right = this.matchEFAC($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.FAC, left: $scope$left, right: $scope$right};
-                }
-                return $$res;
-            });
+                return this.run<FAC>($$dpth,
+                    () => {
+                        let $scope$left: Nullable<ECALL>;
+                        let $scope$right: Nullable<EFAC>;
+                        let $$res: Nullable<FAC> = null;
+                        if (true
+                            && ($scope$left = this.matchECALL($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\*)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$right = this.matchEFAC($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.FAC, left: $scope$left, right: $scope$right};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$FAC$memo,
+        );
     }
     public matchCALL($$dpth: number, $$cr?: ErrorTracker): Nullable<CALL> {
-        return this.run<CALL>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$callee: Nullable<ECALL>;
-                let $scope$a: Nullable<Nullable<ARGS>>;
-                let $$res: Nullable<CALL> = null;
-                if (true
-                    && ($scope$callee = this.matchECALL($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$a = this.matchARGS($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                ) {
-                    $$res = new CALL($scope$callee, $scope$a);
-                }
-                return $$res;
-            });
+                return this.run<CALL>($$dpth,
+                    () => {
+                        let $scope$callee: Nullable<ECALL>;
+                        let $scope$a: Nullable<Nullable<ARGS>>;
+                        let $$res: Nullable<CALL> = null;
+                        if (true
+                            && ($scope$callee = this.matchECALL($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$a = this.matchARGS($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = new CALL($scope$callee, $scope$a);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$CALL$memo,
+        );
     }
     public matchARGS($$dpth: number, $$cr?: ErrorTracker): Nullable<ARGS> {
-        return this.run<ARGS>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$h: Nullable<EXPR>;
-                let $scope$t: Nullable<ARGS_$0[]>;
-                let $$res: Nullable<ARGS> = null;
-                if (true
-                    && ($scope$h = this.matchEXPR($$dpth + 1, $$cr)) !== null
-                    && ($scope$t = this.loop<ARGS_$0>(() => this.matchARGS_$0($$dpth + 1, $$cr), 0, -1)) !== null
-                ) {
-                    $$res = new ARGS($scope$h, $scope$t);
-                }
-                return $$res;
-            });
+                return this.run<ARGS>($$dpth,
+                    () => {
+                        let $scope$h: Nullable<EXPR>;
+                        let $scope$t: Nullable<ARGS_$0[]>;
+                        let $$res: Nullable<ARGS> = null;
+                        if (true
+                            && ($scope$h = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                            && ($scope$t = this.loop<ARGS_$0>(() => this.matchARGS_$0($$dpth + 1, $$cr), 0, -1)) !== null
+                        ) {
+                            $$res = new ARGS($scope$h, $scope$t);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$ARGS$memo,
+        );
     }
     public matchARGS_$0($$dpth: number, $$cr?: ErrorTracker): Nullable<ARGS_$0> {
-        return this.run<ARGS_$0>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$v: Nullable<EXPR>;
-                let $$res: Nullable<ARGS_$0> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:,)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$v = this.matchEXPR($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.ARGS_$0, v: $scope$v};
-                }
-                return $$res;
-            });
+                return this.run<ARGS_$0>($$dpth,
+                    () => {
+                        let $scope$v: Nullable<EXPR>;
+                        let $$res: Nullable<ARGS_$0> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:,)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$v = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.ARGS_$0, v: $scope$v};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$ARGS_$0$memo,
+        );
     }
     public matchDOT($$dpth: number, $$cr?: ErrorTracker): Nullable<DOT> {
-        return this.run<DOT>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$left: Nullable<EDOT>;
-                let $scope$right: Nullable<EATOM>;
-                let $$res: Nullable<DOT> = null;
-                if (true
-                    && ($scope$left = this.matchEDOT($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\.)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$right = this.matchEATOM($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.DOT, left: $scope$left, right: $scope$right};
-                }
-                return $$res;
-            });
+                return this.run<DOT>($$dpth,
+                    () => {
+                        let $scope$left: Nullable<EDOT>;
+                        let $scope$right: Nullable<EATOM>;
+                        let $$res: Nullable<DOT> = null;
+                        if (true
+                            && ($scope$left = this.matchEDOT($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\.)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$right = this.matchEATOM($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.DOT, left: $scope$left, right: $scope$right};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$DOT$memo,
+        );
     }
     public matchATOM($$dpth: number, $$cr?: ErrorTracker): Nullable<ATOM> {
-        return this.choice<ATOM>([
-            () => this.matchATOM_1($$dpth + 1, $$cr),
-            () => this.matchATOM_2($$dpth + 1, $$cr),
-        ]);
+        return this.memoise(
+            () => {
+                return this.choice<ATOM>([
+                    () => this.matchATOM_1($$dpth + 1, $$cr),
+                    () => this.matchATOM_2($$dpth + 1, $$cr),
+                ]);
+            },
+            this.$scope$ATOM$memo,
+        );
     }
     public matchATOM_1($$dpth: number, $$cr?: ErrorTracker): Nullable<ATOM_1> {
         return this.matchVARREF($$dpth + 1, $$cr);
@@ -758,109 +937,154 @@ export class Parser {
         return this.matchINTCONST($$dpth + 1, $$cr);
     }
     public matchVARREF($$dpth: number, $$cr?: ErrorTracker): Nullable<VARREF> {
-        return this.run<VARREF>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $$res: Nullable<VARREF> = null;
-                if (true
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.VARREF, name: $scope$name};
-                }
-                return $$res;
-            });
+                return this.run<VARREF>($$dpth,
+                    () => {
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $$res: Nullable<VARREF> = null;
+                        if (true
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.VARREF, name: $scope$name};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$VARREF$memo,
+        );
     }
     public matchINTCONST($$dpth: number, $$cr?: ErrorTracker): Nullable<INTCONST> {
-        return this.run<INTCONST>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$s: Nullable<string>;
-                let $$res: Nullable<INTCONST> = null;
-                if (true
-                    && ($scope$s = this.regexAccept(String.raw`(?:[\-\+]?\d+)`, "", $$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = new INTCONST($scope$s);
-                }
-                return $$res;
-            });
+                return this.run<INTCONST>($$dpth,
+                    () => {
+                        let $scope$s: Nullable<string>;
+                        let $$res: Nullable<INTCONST> = null;
+                        if (true
+                            && ($scope$s = this.regexAccept(String.raw`(?:[\-\+]?\d+)`, "", $$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = new INTCONST($scope$s);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$INTCONST$memo,
+        );
     }
     public matchRETURN($$dpth: number, $$cr?: ErrorTracker): Nullable<RETURN> {
-        return this.run<RETURN>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$expr: Nullable<EXPR>;
-                let $$res: Nullable<RETURN> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:return)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$expr = this.matchEXPR($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.RETURN, expr: $scope$expr};
-                }
-                return $$res;
-            });
+                return this.run<RETURN>($$dpth,
+                    () => {
+                        let $scope$expr: Nullable<EXPR>;
+                        let $$res: Nullable<RETURN> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:return)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$expr = this.matchEXPR($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.RETURN, expr: $scope$expr};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$RETURN$memo,
+        );
     }
     public matchEXTERNFUNC($$dpth: number, $$cr?: ErrorTracker): Nullable<EXTERNFUNC> {
-        return this.run<EXTERNFUNC>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$externalName: Nullable<EXTNAME>;
-                let $scope$importName: Nullable<IDENTIFIER>;
-                let $scope$p: Nullable<Nullable<FIELDS>>;
-                let $scope$returnType: Nullable<TYPE>;
-                let $$res: Nullable<EXTERNFUNC> = null;
-                if (true
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:import)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match__($$dpth + 1, $$cr) !== null
-                    && ($scope$externalName = this.matchEXTNAME($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:as)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match__($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:fn)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$importName = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && (($scope$p = this.matchFIELDS($$dpth + 1, $$cr)) || true)
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:->)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && ($scope$returnType = this.matchTYPE($$dpth + 1, $$cr)) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                    && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
-                    && this.match_($$dpth + 1, $$cr) !== null
-                ) {
-                    $$res = new EXTERNFUNC($scope$externalName, $scope$importName, $scope$p, $scope$returnType);
-                }
-                return $$res;
-            });
+                return this.run<EXTERNFUNC>($$dpth,
+                    () => {
+                        let $scope$externalName: Nullable<EXTNAME>;
+                        let $scope$importName: Nullable<IDENTIFIER>;
+                        let $scope$p: Nullable<Nullable<FIELDS>>;
+                        let $scope$returnType: Nullable<TYPE>;
+                        let $$res: Nullable<EXTERNFUNC> = null;
+                        if (true
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:import)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match__($$dpth + 1, $$cr) !== null
+                            && ($scope$externalName = this.matchEXTNAME($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:as)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match__($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:fn)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$importName = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\()`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && (($scope$p = this.matchFIELDS($$dpth + 1, $$cr)) || true)
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:\))`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:->)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && ($scope$returnType = this.matchTYPE($$dpth + 1, $$cr)) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                            && this.regexAccept(String.raw`(?:;)`, "", $$dpth + 1, $$cr) !== null
+                            && this.match_($$dpth + 1, $$cr) !== null
+                        ) {
+                            $$res = new EXTERNFUNC($scope$externalName, $scope$importName, $scope$p, $scope$returnType);
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$EXTERNFUNC$memo,
+        );
     }
     public matchEXTNAME($$dpth: number, $$cr?: ErrorTracker): Nullable<EXTNAME> {
-        return this.regexAccept(String.raw`(?:[a-zA-Z][a-zA-Z\d_]*(\.[a-zA-Z][a-zA-Z\d_]*)*)`, "", $$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.regexAccept(String.raw`(?:[a-zA-Z][a-zA-Z\d_]*(\.[a-zA-Z][a-zA-Z\d_]*)*)`, "", $$dpth + 1, $$cr);
+            },
+            this.$scope$EXTNAME$memo,
+        );
     }
     public matchTYPE($$dpth: number, $$cr?: ErrorTracker): Nullable<TYPE> {
-        return this.run<TYPE>($$dpth,
+        return this.memoise(
             () => {
-                let $scope$name: Nullable<IDENTIFIER>;
-                let $$res: Nullable<TYPE> = null;
-                if (true
-                    && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
-                ) {
-                    $$res = {kind: ASTKinds.TYPE, name: $scope$name};
-                }
-                return $$res;
-            });
+                return this.run<TYPE>($$dpth,
+                    () => {
+                        let $scope$name: Nullable<IDENTIFIER>;
+                        let $$res: Nullable<TYPE> = null;
+                        if (true
+                            && ($scope$name = this.matchIDENTIFIER($$dpth + 1, $$cr)) !== null
+                        ) {
+                            $$res = {kind: ASTKinds.TYPE, name: $scope$name};
+                        }
+                        return $$res;
+                    });
+            },
+            this.$scope$TYPE$memo,
+        );
     }
     public matchIDENTIFIER($$dpth: number, $$cr?: ErrorTracker): Nullable<IDENTIFIER> {
-        return this.regexAccept(String.raw`(?:[a-zA-Z][a-zA-Z\d_]*)`, "", $$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.regexAccept(String.raw`(?:[a-zA-Z][a-zA-Z\d_]*)`, "", $$dpth + 1, $$cr);
+            },
+            this.$scope$IDENTIFIER$memo,
+        );
     }
     public match_($$dpth: number, $$cr?: ErrorTracker): Nullable<_> {
-        return this.regexAccept(String.raw`(?:\s*)`, "", $$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.regexAccept(String.raw`(?:\s*)`, "", $$dpth + 1, $$cr);
+            },
+            this.$scope$_$memo,
+        );
     }
     public match__($$dpth: number, $$cr?: ErrorTracker): Nullable<__> {
-        return this.regexAccept(String.raw`(?:\s+)`, "", $$dpth + 1, $$cr);
+        return this.memoise(
+            () => {
+                return this.regexAccept(String.raw`(?:\s+)`, "", $$dpth + 1, $$cr);
+            },
+            this.$scope$__$memo,
+        );
     }
     public test(): boolean {
         const mrk = this.mark();

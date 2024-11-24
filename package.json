@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "pnpm run build:parser && pnpm run build:js",
-    "build:parser": "tspeg grammer/grammer.tspeg src/parser.ts",
+    "build:parser": "tspeg grammer/grammer.tspeg src/parser.ts --enable-memo",
     "build:js": "rollup -c rollup.config.js",
     "lint": "biome check; status=$?; echo 'Use `pnpm run lint!` to apply the fixes.'; exit $status",
     "lint!": "biome check --write",
